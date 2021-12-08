@@ -71,20 +71,12 @@ pub fn read_input<T>(path: &str) -> Result<Vec<T>, InputError>
 where
     T: FromStr,
 {
-    read_input_delim(path, "\n")
+    InputReader::default().read(path)
 }
 
 pub fn read_input_delim<T>(path: &str, delim: &str) -> Result<Vec<T>, InputError>
 where
     T: FromStr,
 {
-    fs::read_to_string(path)
-        .map_err(|err| InputError::FileReadError(err.to_string()))?
-        .split(delim)
-        .map(|s| {
-            s.trim()
-                .parse()
-                .map_err(|_| InputError::ParseError(s.to_string()))
-        })
-        .collect()
+    InputReader::default().with_delim(delim).read(path)
 }
