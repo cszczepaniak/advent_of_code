@@ -1,4 +1,4 @@
-use std::{error::Error, fmt::Display, fs, str::FromStr};
+use std::{error::Error, fmt::Display, fs, marker::PhantomData, str::FromStr};
 
 #[derive(Debug)]
 pub enum InputError {
@@ -16,6 +16,56 @@ impl Display for InputError {
 }
 
 impl Error for InputError {}
+
+pub struct InputReader<'a, T> {
+    delim: &'a str,
+    line_bounds: (usize, usize),
+    marker: PhantomData<T>,
+}
+
+impl<'a, T> Default for InputReader<'a, T> {
+    fn default() -> Self {
+        Self {
+            delim: "\n",
+            line_bounds: (usize::MIN, usize::MAX),
+            marker: PhantomData,
+        }
+    }
+}
+
+impl<'a, T> InputReader<'a, T> {
+    pub fn with_delim(self, delim: &'a str) -> Self {
+        Self { delim, ..self }
+    }
+
+    pub fn with_line_bounds(self, min: usize, max: usize) -> Self {
+        Self {
+            line_bounds: (min, max),
+            ..self
+        }
+    }
+
+    pub fn read(self, path: &str) -> Result<Vec<T>, InputError>
+    where
+        T: FromStr,
+    {
+        let ls: Vec<String> = fs::read_to_string(path)
+            .map_err(|err| InputError::FileReadError(err.to_string()))?
+            .lines()
+            .skip(self.line_bounds.0)
+            .take(self.line_bounds.1 - self.line_bounds.0)
+            .map(|s| s.to_string())
+            .collect();
+        ls.join("\n")
+            .split(self.delim)
+            .map(|s| {
+                s.trim()
+                    .parse()
+                    .map_err(|_| InputError::ParseError(s.to_string()))
+            })
+            .collect()
+    }
+}
 
 pub fn read_input<T>(path: &str) -> Result<Vec<T>, InputError>
 where
