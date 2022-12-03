@@ -1,9 +1,4 @@
-use std::{
-    fs::File,
-    io::Write,
-    path::Path,
-    time::{Duration, SystemTime},
-};
+use std::{fs::File, io::Write, path::Path};
 
 use chrono::Datelike;
 use clap::{Parser, Subcommand};
