@@ -70,10 +70,12 @@ async fn download(
 
 fn init(day: Option<usize>, output: Option<String>) -> anyhow::Result<()> {
     let day = day.unwrap_or_else(|| chrono::Local::now().day() as usize);
-    let reg = Handlebars::new();
-    let s = reg.render_template(TEMPLATE, &json!({ "day": day }))?;
+    let output = output.unwrap_or(format!("src/bin/day{}.rs", day));
 
-    println!("{s}");
+    let f = File::create(output)?;
+
+    let reg = Handlebars::new();
+    reg.render_template_to_write(TEMPLATE, &json!({ "day": day }), f)?;
 
     Ok(())
 }
@@ -132,4 +134,5 @@ fn main() -> anyhow::Result<()> {
     println!(\"part 2: {part_two}\");
 
     Ok(())
-}";
+}
+";
