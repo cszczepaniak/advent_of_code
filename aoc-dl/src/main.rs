@@ -2,7 +2,9 @@ use std::{fs::File, io::Write, path::Path};
 
 use chrono::Datelike;
 use clap::{Parser, Subcommand};
+use handlebars::Handlebars;
 use serde::{Deserialize, Serialize};
+use serde_json::json;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -16,6 +18,7 @@ async fn main() -> anyhow::Result<()> {
             output,
             config,
         } => download(year, day, output, config).await?,
+        Commands::Init { day, output } => init(day, output)?,
     };
 
     Ok(())
@@ -65,6 +68,16 @@ async fn download(
     Ok(())
 }
 
+fn init(day: Option<usize>, output: Option<String>) -> anyhow::Result<()> {
+    let day = day.unwrap_or_else(|| chrono::Local::now().day() as usize);
+    let reg = Handlebars::new();
+    let s = reg.render_template(TEMPLATE, &json!({ "day": day }))?;
+
+    println!("{s}");
+
+    Ok(())
+}
+
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
 struct Cli {
@@ -93,9 +106,30 @@ enum Commands {
         #[arg(short, long)]
         config: Option<String>,
     },
+    Init {
+        #[arg(short, long)]
+        day: Option<usize>,
+
+        #[arg(short, long)]
+        output: Option<String>,
+    },
 }
 
 #[derive(Deserialize, Serialize)]
 struct Config {
     cookie: String,
 }
+
+static TEMPLATE: &str = "use std::str::FromStr;
+
+fn main() -> anyhow::Result<()> {
+    let part_one = common::parse_input_lines::<T, anyhow::Error>(\"./input/day{{day}}.txt\")?;
+
+    println!(\"part 1: {part_one}\");
+
+    let part_two = common::parse_input_lines::<T, anyhow::Error>(\"./input/day{{day}}.txt\")?;
+
+    println!(\"part 2: {part_two}\");
+
+    Ok(())
+}";
