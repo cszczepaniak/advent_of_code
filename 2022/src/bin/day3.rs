@@ -30,7 +30,7 @@ fn main() -> anyhow::Result<()> {
 fn priority_for_chunk(ch: &[HashSet<char>]) -> anyhow::Result<usize> {
     let mut res = ch
         .get(0)
-        .ok_or(anyhow::anyhow!("expected three things in chunk"))?
+        .ok_or(anyhow::anyhow!("expected at least one thing in chunk"))?
         .clone();
 
     for r in ch.iter().skip(1) {
