@@ -8,7 +8,7 @@ const LINE_ENDING: &'static str = "\n";
 fn main() -> anyhow::Result<()> {
     let two_new_lines = LINE_ENDING.to_string() + LINE_ENDING;
     let mut group_sums: Vec<usize> =
-        advent::parse_input_delim::<Group, anyhow::Error>("./input/day1.txt", &two_new_lines)?
+        common::parse_input_delim::<Group, anyhow::Error>("./input/day1.txt", &two_new_lines)?
             .iter()
             .map(|g| g.0)
             .collect();

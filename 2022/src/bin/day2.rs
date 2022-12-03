@@ -2,7 +2,7 @@ use std::str::FromStr;
 
 fn main() -> anyhow::Result<()> {
     let part_one: usize =
-        advent::parse_input_lines::<PartOneInput, anyhow::Error>("./input/day2.txt")?
+        common::parse_input_lines::<PartOneInput, anyhow::Error>("./input/day2.txt")?
             .iter()
             .map(|input| input.me.score() + input.me.calculate_result(&input.other).score())
             .sum();
@@ -10,7 +10,7 @@ fn main() -> anyhow::Result<()> {
     println!("part 1: {part_one}");
 
     let part_two: usize =
-        advent::parse_input_lines::<PartTwoInput, anyhow::Error>("./input/day2.txt")?
+        common::parse_input_lines::<PartTwoInput, anyhow::Error>("./input/day2.txt")?
             .iter()
             .map(|input| {
                 input.other.should_choose(&input.desired_result).score()
