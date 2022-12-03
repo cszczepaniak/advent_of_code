@@ -1,4 +1,4 @@
-use std::{fs::File, io::Write, path::Path};
+use std::{env::current_dir, fs::File, io::Write, path::Path};
 
 use chrono::Datelike;
 use clap::{Parser, Subcommand};
@@ -40,7 +40,7 @@ async fn download(
     output: Option<String>,
     config: Option<String>,
 ) -> anyhow::Result<()> {
-    let year = year.unwrap_or_else(|| chrono::Local::now().year() as usize);
+    let year = get_year(year)?;
     let day = day.unwrap_or_else(|| chrono::Local::now().day() as usize);
     if day < 1 || day > 25 {
         anyhow::bail!("day must be between 1 and 25")
@@ -60,7 +60,7 @@ async fn download(
         .send()
         .await?;
 
-    let res = res.bytes().await?;
+    let res = res.error_for_status()?.bytes().await?;
 
     let output_path = Path::new(&output).join(format!("day{day}.txt"));
     File::create(output_path)?.write_all(&res)?;
@@ -78,6 +78,26 @@ fn init(day: Option<usize>, output: Option<String>) -> anyhow::Result<()> {
     reg.render_template_to_write(TEMPLATE, &json!({ "day": day }), f)?;
 
     Ok(())
+}
+
+fn get_year(input: Option<usize>) -> anyhow::Result<usize> {
+    if let Some(y) = input {
+        return Ok(y);
+    }
+
+    let from_dir = current_dir()?
+        .components()
+        .last()
+        .ok_or(anyhow::anyhow!("problem parsing current path"))?
+        .as_os_str()
+        .to_string_lossy()
+        .parse::<usize>();
+
+    if let Ok(y) = from_dir {
+        return Ok(y);
+    }
+
+    Ok(chrono::Local::now().day() as usize)
 }
 
 #[derive(Parser)]
