@@ -42,13 +42,9 @@ fn priority_for_chunk(ch: &[HashSet<char>]) -> anyhow::Result<usize> {
     }
 
     let shared = res.iter().next().unwrap();
-    Ok(priority(*shared))
-}
-
-fn priority(ch: char) -> usize {
-    if ch.is_ascii_lowercase() {
-        ch as usize - 'a' as usize + 1
+    if shared.is_ascii_lowercase() {
+        Ok(*shared as usize - 'a' as usize + 1)
     } else {
-        ch as usize - 'A' as usize + 1 + 26
+        Ok(*shared as usize - 'A' as usize + 1 + 26)
     }
 }
