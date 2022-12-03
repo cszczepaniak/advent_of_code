@@ -34,10 +34,14 @@ fn priority_for_chunk(ch: &[Rucksack]) -> anyhow::Result<usize> {
     }
 
     let shared = res.iter().next().unwrap();
-    if shared.is_lowercase() {
-        Ok(*shared as usize - 'a' as usize + 1)
+    Ok(priority(*shared))
+}
+
+fn priority(ch: char) -> usize {
+    if ch.is_ascii_lowercase() {
+        ch as usize - 'a' as usize + 1
     } else {
-        Ok(*shared as usize - 'A' as usize + 1 + 26)
+        ch as usize - 'A' as usize + 1 + 26
     }
 }
 
@@ -53,12 +57,8 @@ impl RucksackHalves {
             anyhow::bail!("expected only one shared item");
         }
 
-        let shared = shared.get(0).unwrap().clone();
-        if shared.is_lowercase() {
-            Ok(*shared as usize - 'a' as usize + 1)
-        } else {
-            Ok(*shared as usize - 'A' as usize + 1 + 26)
-        }
+        let shared = shared.get(0).unwrap();
+        Ok(priority(**shared))
     }
 }
 
