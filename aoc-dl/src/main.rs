@@ -145,14 +145,18 @@ struct Config {
 static TEMPLATE: &str = "use std::str::FromStr;
 
 fn main() -> anyhow::Result<()> {
-    let part_one = common::parse_input_lines::<T, anyhow::Error>(\"./input/day{{day}}.txt\")?;
+    let input = common::get_input(2022, 4)?;
 
-    println!(\"part 1: {part_one}\");
+    // let part_one = input
+    //    .lines()
+    //    .map(|l| l.parse::<TInput>().unwrap())
 
-    let part_two = common::parse_input_lines::<T, anyhow::Error>(\"./input/day{{day}}.txt\")?;
+    // println!(\"part 1: {part_one}\");
 
-    println!(\"part 2: {part_two}\");
+    // let part_two = input
+    //    .lines()
+    //    .map(|l| l.parse::<TInput>().unwrap())
 
-    Ok(())
+    // println!(\"part 2: {part_two}\");
 }
 ";
