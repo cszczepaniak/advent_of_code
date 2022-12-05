@@ -6,12 +6,14 @@ const LINE_ENDING: &'static str = "\r\n";
 const LINE_ENDING: &'static str = "\n";
 
 fn main() -> anyhow::Result<()> {
+    let input = common::get_input(2022, 1)?;
+
     let two_new_lines = LINE_ENDING.to_string() + LINE_ENDING;
-    let mut group_sums: Vec<usize> =
-        common::parse_input_delim::<Group, anyhow::Error>("./input/day1.txt", &two_new_lines)?
-            .iter()
-            .map(|g| g.0)
-            .collect();
+    let mut group_sums: Vec<usize> = input
+        .split(&two_new_lines)
+        .map(|l| l.parse::<Group>().expect("bad puzzle input"))
+        .map(|g| g.0)
+        .collect();
 
     group_sums.sort_by(|a, b| b.cmp(a));
 

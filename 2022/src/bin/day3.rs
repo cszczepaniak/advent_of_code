@@ -1,7 +1,9 @@
-use std::{collections::HashSet, fs};
+use std::collections::HashSet;
 
 fn main() -> anyhow::Result<()> {
-    let part_one = fs::read_to_string("./input/day3.txt")?
+    let input = common::get_input(2022, 3)?;
+
+    let part_one = input
         .lines()
         .map(|l| {
             [
@@ -14,7 +16,7 @@ fn main() -> anyhow::Result<()> {
 
     println!("part 1: {part_one}");
 
-    let part_two = fs::read_to_string("./input/day3.txt")?
+    let part_two = input
         .lines()
         .map(|l| HashSet::from_iter(l.chars()))
         .collect::<Vec<_>>()
