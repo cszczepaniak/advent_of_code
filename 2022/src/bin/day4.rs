@@ -1,4 +1,4 @@
-use std::{fs, str::FromStr};
+use std::str::FromStr;
 
 use nom::{
     bytes::complete::tag,
@@ -11,7 +11,7 @@ use nom::{
 };
 
 fn main() -> anyhow::Result<()> {
-    let input = fs::read_to_string("./input/day4.txt")?;
+    let input = common::get_input(2022, 4)?;
 
     let part_one = input
         .lines()
