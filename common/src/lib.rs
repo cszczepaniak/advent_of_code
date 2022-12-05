@@ -1,8 +1,4 @@
-use std::{
-    fs::{self, File},
-    io,
-    str::FromStr,
-};
+use std::fs::File;
 
 use serde::Deserialize;
 
@@ -35,26 +31,4 @@ pub fn get_input(year: usize, day: usize) -> anyhow::Result<String> {
         .build()
         .unwrap()
         .block_on(async { download_input(year, day, &config.cookie).await })
-}
-
-pub fn parse_input_lines<T, E>(path: &str) -> Result<Vec<T>, E>
-where
-    T: FromStr<Err = E>,
-    E: From<io::Error>,
-{
-    fs::read_to_string(path)?
-        .lines()
-        .map(|l| l.parse::<T>())
-        .collect()
-}
-
-pub fn parse_input_delim<T, E>(path: &str, delim: &str) -> Result<Vec<T>, E>
-where
-    T: FromStr<Err = E>,
-    E: From<io::Error>,
-{
-    fs::read_to_string(path)?
-        .split(delim)
-        .map(|l| l.parse::<T>())
-        .collect()
 }
