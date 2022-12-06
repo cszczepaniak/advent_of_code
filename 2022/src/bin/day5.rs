@@ -4,7 +4,7 @@ use nom::{
     branch::alt,
     bytes::complete::take,
     bytes::complete::{tag, take_while_m_n},
-    character::complete::{self},
+    character::complete,
     multi::separated_list1,
     sequence::{delimited, tuple},
     IResult,
