@@ -18,7 +18,7 @@ async fn main() -> anyhow::Result<()> {
             output,
             config,
         } => download(year, day, output, config).await?,
-        Commands::Init { day, output } => init(day, output)?,
+        Commands::Init { year, day, output } => init(year, day, output)?,
     };
 
     Ok(())
@@ -68,14 +68,16 @@ async fn download(
     Ok(())
 }
 
-fn init(day: Option<usize>, output: Option<String>) -> anyhow::Result<()> {
+fn init(year: Option<usize>, day: Option<usize>, output: Option<String>) -> anyhow::Result<()> {
+    let year = year.unwrap_or_else(|| chrono::Local::now().year() as usize);
     let day = day.unwrap_or_else(|| chrono::Local::now().day() as usize);
+
     let output = output.unwrap_or(format!("src/bin/day{}.rs", day));
 
     let f = File::create(output)?;
 
     let reg = Handlebars::new();
-    reg.render_template_to_write(TEMPLATE, &json!({ "day": day }), f)?;
+    reg.render_template_to_write(TEMPLATE, &json!({ "day": day, "year": year }), f)?;
 
     Ok(())
 }
@@ -130,6 +132,9 @@ enum Commands {
     },
     Init {
         #[arg(short, long)]
+        year: Option<usize>,
+
+        #[arg(short, long)]
         day: Option<usize>,
 
         #[arg(short, long)]
@@ -145,7 +150,7 @@ struct Config {
 static TEMPLATE: &str = "use std::str::FromStr;
 
 fn main() -> anyhow::Result<()> {
-    let input = common::get_input(2022, 4)?;
+    let input = common::get_input({{year}}, {{day}})?;
 
     // let part_one = input
     //    .lines()
