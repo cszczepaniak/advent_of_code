@@ -158,5 +158,7 @@ fn main() -> anyhow::Result<()> {
     //    .map(|l| l.parse::<TInput>().unwrap())
 
     // println!(\"part 2: {part_two}\");
+
+    Ok(())
 }
 ";
