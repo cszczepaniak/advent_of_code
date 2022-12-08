@@ -12,7 +12,6 @@ debug = 1
 anyhow = "1.0"
 nom = "7.1"
 dhat = "0.3"
-indextree = "4.5"
 
 [dependencies.common]
 path = "../common"

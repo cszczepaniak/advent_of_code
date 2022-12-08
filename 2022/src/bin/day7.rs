@@ -1,4 +1,3 @@
-use indextree::{Arena, NodeId};
 use nom::{
     branch::alt,
     bytes::complete::{tag, take_while},
@@ -12,35 +11,10 @@ const DIR_MAX: usize = 100000;
 const TOTAL_SPACE: usize = 70000000;
 const NEEDED_SPACE: usize = 30000000;
 
-#[allow(unused)]
-static EXAMPLE_INPUT: &str = "$ cd /
-$ ls
-dir a
-14848514 b.txt
-8504156 c.dat
-dir d
-$ cd a
-$ ls
-dir e
-29116 f
-2557 g
-62596 h.lst
-$ cd e
-$ ls
-584 i
-$ cd ..
-$ cd ..
-$ cd d
-$ ls
-4060174 j
-8033020 d.log
-5626152 d.ext
-7214296 k";
-
 fn main() -> anyhow::Result<()> {
     let input = common::get_input(2022, 7)?;
 
-    let mut arena: Arena<NodeData> = Arena::new();
+    let mut arena: Tree<NodeData> = Tree::new();
     let root = arena.new_node(NodeData::Dir("/"));
     let mut curr = root;
 
@@ -50,12 +24,7 @@ fn main() -> anyhow::Result<()> {
             .map_err(|_| anyhow::anyhow!("error parsing command"))?;
 
         match parsed {
-            InputLine::Command(c) => {
-                let next = process_command(c, curr, &arena);
-                if let Some(next) = next {
-                    curr = next;
-                }
-            }
+            InputLine::Command(c) => process_command(c, curr, &arena).map_or((), |n| curr = n),
             InputLine::FileSize(size) => process_file(curr, size, &mut arena),
             InputLine::Dir(d) => process_dir(curr, d, &mut arena),
         }
@@ -81,26 +50,25 @@ fn main() -> anyhow::Result<()> {
             min_to_free = s;
         }
     });
-    println!("part 1 answer: {min_to_free}");
+    println!("part 2 answer: {min_to_free}");
 
     Ok(())
 }
 
-fn traverse<F>(root: NodeId, arena: &Arena<NodeData>, mut delegate: F) -> usize
+fn traverse<F>(root: NodeId, arena: &Tree<NodeData>, mut delegate: F) -> usize
 where
     F: FnMut(usize),
 {
     traverse_internal(root, arena, &mut delegate)
 }
 
-fn traverse_internal<F>(root: NodeId, arena: &Arena<NodeData>, delegate: &mut F) -> usize
+fn traverse_internal<F>(root: NodeId, arena: &Tree<NodeData>, delegate: &mut F) -> usize
 where
     F: FnMut(usize),
 {
     let mut total_for_level = 0usize;
     for c in root.children(&arena) {
-        if let Some(data) = arena.get(c) {
-            let data = data.get();
+        if let Some(data) = arena.get_data(c) {
             match data {
                 NodeData::Dir(_) => total_for_level += traverse_internal(c, arena, delegate),
                 NodeData::FileSize(size) => total_for_level += size,
@@ -112,29 +80,25 @@ where
     total_for_level
 }
 
-fn process_command(c: Command, curr: NodeId, arena: &Arena<NodeData>) -> Option<NodeId> {
+fn process_command(c: Command, curr: NodeId, arena: &Tree<NodeData>) -> Option<NodeId> {
     match c {
-        Command::GoToParent => curr.ancestors(&arena).skip(1).next(),
+        Command::GoToParent => curr.parent(&arena),
         Command::ChangeDir { target } => curr.children(&arena).find(|&c| {
-            if let Some(data) = arena.get(c) {
-                let data = data.get();
-                match data {
-                    NodeData::Dir(d) => return d == &target,
-                    NodeData::FileSize(_) => {}
-                }
-            }
-            false
+            arena.get_data(c).map_or(false, |d| match d {
+                NodeData::Dir(d) => d == &target,
+                NodeData::FileSize(_) => false,
+            })
         }),
         Command::List => None,
     }
 }
 
-fn process_dir<'a>(curr: NodeId, dir: &'a str, a: &mut Arena<NodeData<'a>>) {
+fn process_dir<'a>(curr: NodeId, dir: &'a str, a: &mut Tree<NodeData<'a>>) {
     let n = a.new_node(NodeData::Dir(dir));
     curr.append(n, a);
 }
 
-fn process_file<'a>(curr: NodeId, file_size: usize, a: &mut Arena<NodeData<'a>>) {
+fn process_file<'a>(curr: NodeId, file_size: usize, a: &mut Tree<NodeData<'a>>) {
     let n = a.new_node(NodeData::FileSize(file_size));
     curr.append(n, a);
 }
@@ -196,19 +160,19 @@ fn parse_command(input: &str) -> IResult<&str, Command> {
     }
 }
 
-struct MyTree<T> {
-    nodes: Vec<MyNode<T>>,
+struct Tree<T> {
+    nodes: Vec<Node<T>>,
 }
 
-impl<T> MyTree<T> {
+impl<T> Tree<T> {
     fn new() -> Self {
         Self { nodes: Vec::new() }
     }
 
-    fn new_node(&mut self, data: T) -> MyNodeId {
+    fn new_node(&mut self, data: T) -> NodeId {
         let next = self.nodes.len();
 
-        self.nodes.push(MyNode {
+        self.nodes.push(Node {
             parent: None,
             next_sibling: None,
             prev_sibling: None,
@@ -217,35 +181,31 @@ impl<T> MyTree<T> {
             data,
         });
 
-        MyNodeId { index: next }
+        NodeId { index: next }
     }
 
-    fn get(&self, id: MyNodeId) -> Option<&MyNode<T>> {
-        self.nodes.get(id.index)
-    }
-
-    fn get_data(&self, id: MyNodeId) -> Option<&T> {
+    fn get_data(&self, id: NodeId) -> Option<&T> {
         self.nodes.get(id.index).map(|v| &v.data)
     }
 }
 
-struct MyNode<T> {
-    parent: Option<MyNodeId>,
-    next_sibling: Option<MyNodeId>,
-    prev_sibling: Option<MyNodeId>,
-    first_child: Option<MyNodeId>,
-    last_child: Option<MyNodeId>,
+struct Node<T> {
+    parent: Option<NodeId>,
+    next_sibling: Option<NodeId>,
+    prev_sibling: Option<NodeId>,
+    first_child: Option<NodeId>,
+    last_child: Option<NodeId>,
 
     data: T,
 }
 
 #[derive(Debug, Clone, Copy)]
-struct MyNodeId {
+struct NodeId {
     index: usize,
 }
 
-impl MyNodeId {
-    fn append<T>(self, other_idx: Self, tree: &mut MyTree<T>) {
+impl NodeId {
+    fn append<T>(self, other_idx: Self, tree: &mut Tree<T>) {
         let n = &mut tree.nodes[self.index];
 
         let prev_sib = if let Some(prev_last) = n.last_child {
@@ -269,22 +229,22 @@ impl MyNodeId {
         other.parent = Some(self);
     }
 
-    fn parent<T>(self, tree: &MyTree<T>) -> Option<Self> {
+    fn parent<T>(self, tree: &Tree<T>) -> Option<Self> {
         tree.nodes[self.index].parent
     }
 
-    fn children<T>(self, tree: &MyTree<T>) -> Children<'_, T> {
+    fn children<T>(self, tree: &Tree<T>) -> Children<'_, T> {
         Children::new(tree, self)
     }
 }
 
 struct Children<'a, T> {
-    tr: &'a MyTree<T>,
-    curr: Option<MyNodeId>,
+    tr: &'a Tree<T>,
+    curr: Option<NodeId>,
 }
 
 impl<'a, T> Children<'a, T> {
-    fn new(tr: &'a MyTree<T>, start: MyNodeId) -> Self {
+    fn new(tr: &'a Tree<T>, start: NodeId) -> Self {
         Self {
             tr,
             curr: tr.nodes[start.index].first_child,
@@ -293,7 +253,7 @@ impl<'a, T> Children<'a, T> {
 }
 
 impl<'a, T> Iterator for Children<'a, T> {
-    type Item = MyNodeId;
+    type Item = NodeId;
 
     fn next(&mut self) -> Option<Self::Item> {
         if let Some(curr) = self.curr {
