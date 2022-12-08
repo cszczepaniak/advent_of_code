@@ -195,3 +195,118 @@ fn parse_command(input: &str) -> IResult<&str, Command> {
         _ => Ok((input, Command::ChangeDir { target })),
     }
 }
+
+struct MyTree<T> {
+    nodes: Vec<MyNode<T>>,
+}
+
+impl<T> MyTree<T> {
+    fn new() -> Self {
+        Self { nodes: Vec::new() }
+    }
+
+    fn new_node(&mut self, data: T) -> MyNodeId {
+        let next = self.nodes.len();
+
+        self.nodes.push(MyNode {
+            parent: None,
+            next_sibling: None,
+            prev_sibling: None,
+            first_child: None,
+            last_child: None,
+            data,
+        });
+
+        MyNodeId { index: next }
+    }
+
+    fn get(&self, id: MyNodeId) -> Option<&MyNode<T>> {
+        self.nodes.get(id.index)
+    }
+
+    fn get_data(&self, id: MyNodeId) -> Option<&T> {
+        self.nodes.get(id.index).map(|v| &v.data)
+    }
+}
+
+struct MyNode<T> {
+    parent: Option<MyNodeId>,
+    next_sibling: Option<MyNodeId>,
+    prev_sibling: Option<MyNodeId>,
+    first_child: Option<MyNodeId>,
+    last_child: Option<MyNodeId>,
+
+    data: T,
+}
+
+#[derive(Debug, Clone, Copy)]
+struct MyNodeId {
+    index: usize,
+}
+
+impl MyNodeId {
+    fn append<T>(self, other_idx: Self, tree: &mut MyTree<T>) {
+        let n = &mut tree.nodes[self.index];
+
+        let prev_sib = if let Some(prev_last) = n.last_child {
+            // Hook up this node as the last child on the parent
+            n.last_child = Some(other_idx);
+
+            // Hook up this node as the next sibling on the previous last child
+            let prev = &mut tree.nodes[prev_last.index];
+            prev.next_sibling = Some(other_idx);
+
+            Some(prev_last)
+        } else {
+            n.first_child = Some(other_idx);
+            n.last_child = Some(other_idx);
+            None
+        };
+
+        let other = &mut tree.nodes[other_idx.index];
+        other.prev_sibling = prev_sib;
+        other.next_sibling = None;
+        other.parent = Some(self);
+    }
+
+    fn parent<T>(self, tree: &MyTree<T>) -> Option<Self> {
+        tree.nodes[self.index].parent
+    }
+
+    fn children<T>(self, tree: &MyTree<T>) -> Children<'_, T> {
+        Children::new(tree, self)
+    }
+}
+
+struct Children<'a, T> {
+    tr: &'a MyTree<T>,
+    curr: Option<MyNodeId>,
+}
+
+impl<'a, T> Children<'a, T> {
+    fn new(tr: &'a MyTree<T>, start: MyNodeId) -> Self {
+        Self {
+            tr,
+            curr: tr.nodes[start.index].first_child,
+        }
+    }
+}
+
+impl<'a, T> Iterator for Children<'a, T> {
+    type Item = MyNodeId;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if let Some(curr) = self.curr {
+            let next = self
+                .tr
+                .nodes
+                .get(curr.index)
+                .map_or(None, |n| n.next_sibling);
+
+            self.curr = next;
+            Some(curr)
+        } else {
+            None
+        }
+    }
+}
