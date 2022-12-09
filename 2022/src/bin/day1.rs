@@ -1,13 +1,25 @@
 use std::str::FromStr;
 
+use common::runner_main;
+
 #[cfg(windows)]
 const LINE_ENDING: &'static str = "\r\n";
 #[cfg(not(windows))]
 const LINE_ENDING: &'static str = "\n";
 
-fn main() -> anyhow::Result<()> {
-    let input = common::get_input(2022, 1)?;
+runner_main!(2022, 1, part1: part_one, part2: part_two);
 
+fn part_one(input: &str) -> anyhow::Result<usize> {
+    let group_sums = parse_and_sort(input);
+    Ok(group_sums[0])
+}
+
+fn part_two(input: &str) -> anyhow::Result<usize> {
+    let group_sums = parse_and_sort(input);
+    Ok(group_sums.iter().take(3).sum())
+}
+
+fn parse_and_sort(input: &str) -> Vec<usize> {
     let two_new_lines = LINE_ENDING.to_string() + LINE_ENDING;
     let mut group_sums: Vec<usize> = input
         .split(&two_new_lines)
@@ -17,10 +29,7 @@ fn main() -> anyhow::Result<()> {
 
     group_sums.sort_by(|a, b| b.cmp(a));
 
-    println!("part 1: {}", group_sums[0]);
-    println!("part 2: {}", group_sums.iter().take(3).sum::<usize>());
-
-    Ok(())
+    group_sums
 }
 
 struct Group(usize);

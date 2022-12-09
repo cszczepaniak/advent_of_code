@@ -1,7 +1,9 @@
 use std::collections::HashSet;
 
+use common::network;
+
 fn main() -> anyhow::Result<()> {
-    let input = common::get_input(2022, 3)?;
+    let input = network::get_input(2022, 3)?;
 
     let part_one = input
         .lines()

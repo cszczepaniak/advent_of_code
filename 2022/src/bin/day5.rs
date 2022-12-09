@@ -1,5 +1,6 @@
 use std::collections::BTreeMap;
 
+use common::network;
 use nom::{
     branch::alt,
     bytes::complete::take,
@@ -18,7 +19,7 @@ const LINE_ENDING: &'static str = "\n";
 fn main() -> anyhow::Result<()> {
     let two_new_lines = LINE_ENDING.to_string() + LINE_ENDING;
 
-    let input = common::get_input(2022, 5)?;
+    let input = network::get_input(2022, 5)?;
 
     let (stacks, instructions) = input
         .split_once(&two_new_lines)

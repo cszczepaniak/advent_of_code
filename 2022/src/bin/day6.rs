@@ -1,16 +1,9 @@
-use std::{collections::HashSet, fs};
+use std::collections::HashSet;
 
-#[cfg(feature = "dhat-heap")]
-#[global_allocator]
-static ALLOC: dhat::Alloc = dhat::Alloc;
+use common::network;
 
 fn main() -> anyhow::Result<()> {
-    #[cfg(feature = "dhat-heap")]
-    let _profiler = dhat::Profiler::new_heap();
-
-    // let input = common::get_input(2022, 6)?;
-    // Let's read from a file to avoid the allocations from our common package
-    let input = fs::read_to_string("./input/day6.txt")?;
+    let input = network::get_input(2022, 6)?;
 
     println!(
         "{}",

@@ -1,3 +1,4 @@
+use common::network;
 use nom::{
     branch::alt,
     bytes::complete::{tag, take_while},
@@ -12,7 +13,7 @@ const TOTAL_SPACE: usize = 70000000;
 const NEEDED_SPACE: usize = 30000000;
 
 fn main() -> anyhow::Result<()> {
-    let input = common::get_input(2022, 7)?;
+    let input = network::get_input(2022, 7)?;
 
     let mut arena: Tree<NodeData> = Tree::new();
     let root = arena.new_node(NodeData::Dir("/"));

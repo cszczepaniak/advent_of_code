@@ -1,5 +1,6 @@
 use std::str::FromStr;
 
+use common::network;
 use nom::{
     bytes::complete::tag,
     character::complete::char,
@@ -11,7 +12,7 @@ use nom::{
 };
 
 fn main() -> anyhow::Result<()> {
-    let input = common::get_input(2022, 4)?;
+    let input = network::get_input(2022, 4)?;
 
     let part_one = input
         .lines()

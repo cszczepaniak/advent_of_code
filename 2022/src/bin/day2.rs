@@ -1,7 +1,9 @@
 use std::str::FromStr;
 
+use common::network;
+
 fn main() -> anyhow::Result<()> {
-    let input = common::get_input(2022, 2)?;
+    let input = network::get_input(2022, 2)?;
 
     let part_one: usize = input
         .lines()
