@@ -1,9 +1,11 @@
 use std::collections::HashSet;
 
-fn main() -> anyhow::Result<()> {
-    let input = common::get_input(2022, 3)?;
+use common::runner_main;
 
-    let part_one = input
+runner_main!(2022, day 3, part1: part_one, part2: part_two);
+
+fn part_one(input: &str) -> anyhow::Result<usize> {
+    input
         .lines()
         .map(|l| {
             [
@@ -12,21 +14,17 @@ fn main() -> anyhow::Result<()> {
             ]
         })
         .map(|ch| priority_for_chunk(&ch))
-        .sum::<Result<usize, _>>()?;
+        .sum()
+}
 
-    println!("part 1: {part_one}");
-
-    let part_two = input
+fn part_two(input: &str) -> anyhow::Result<usize> {
+    input
         .lines()
         .map(|l| HashSet::from_iter(l.chars()))
         .collect::<Vec<_>>()
         .chunks(3)
         .map(priority_for_chunk)
-        .sum::<Result<usize, _>>()?;
-
-    println!("part 2: {part_two}");
-
-    Ok(())
+        .sum()
 }
 
 fn priority_for_chunk(ch: &[HashSet<char>]) -> anyhow::Result<usize> {

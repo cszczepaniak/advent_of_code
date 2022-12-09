@@ -1,26 +1,29 @@
 use std::str::FromStr;
 
-#[cfg(windows)]
-const LINE_ENDING: &'static str = "\r\n";
-#[cfg(not(windows))]
-const LINE_ENDING: &'static str = "\n";
+use common::runner_main;
 
-fn main() -> anyhow::Result<()> {
-    let input = common::get_input(2022, 1)?;
+const GROUP_SEPARATOR: &'static str = "\n\n";
 
-    let two_new_lines = LINE_ENDING.to_string() + LINE_ENDING;
+runner_main!(2022, day 1, part1: part_one, part2: part_two);
+
+fn part_one(input: &str) -> usize {
+    parse_and_sort(input)[0]
+}
+
+fn part_two(input: &str) -> usize {
+    parse_and_sort(input).iter().take(3).sum()
+}
+
+fn parse_and_sort(input: &str) -> Vec<usize> {
     let mut group_sums: Vec<usize> = input
-        .split(&two_new_lines)
+        .split(GROUP_SEPARATOR)
         .map(|l| l.parse::<Group>().expect("bad puzzle input"))
         .map(|g| g.0)
         .collect();
 
     group_sums.sort_by(|a, b| b.cmp(a));
 
-    println!("part 1: {}", group_sums[0]);
-    println!("part 2: {}", group_sums.iter().take(3).sum::<usize>());
-
-    Ok(())
+    group_sums
 }
 
 struct Group(usize);

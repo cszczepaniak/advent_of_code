@@ -1,37 +1,16 @@
-use std::{collections::HashSet, fs};
+use std::collections::HashSet;
 
-#[cfg(feature = "dhat-heap")]
-#[global_allocator]
-static ALLOC: dhat::Alloc = dhat::Alloc;
+use common::runner_main;
 
-fn main() -> anyhow::Result<()> {
-    #[cfg(feature = "dhat-heap")]
-    let _profiler = dhat::Profiler::new_heap();
+runner_main!(2022, day 6, part1: part_one, part2: part_two);
 
-    // let input = common::get_input(2022, 6)?;
-    // Let's read from a file to avoid the allocations from our common package
-    let input = fs::read_to_string("./input/day6.txt")?;
-
-    println!(
-        "{}",
-        find_marker_optimized(&input, 4).expect("didn't find a marker")
-    );
-    println!(
-        "{}",
-        find_marker_optimized(&input, 14).expect("didn't find a message")
-    );
-
-    Ok(())
+fn part_one(input: &str) -> anyhow::Result<usize> {
+    find_marker_optimized(&input, 4).ok_or(anyhow::anyhow!("didn't find a marker"))
 }
 
-/*
-The profiling results from running main() against the input:
-- find_marker:
-    dhat: Total:     596,928 bytes in 4,142 blocks
-
-- find_marker_optimized:
-    dhat: Total:     5,184 bytes in 3 blocks
- */
+fn part_two(input: &str) -> anyhow::Result<usize> {
+    find_marker_optimized(&input, 14).ok_or(anyhow::anyhow!("didn't find a marker"))
+}
 
 #[allow(dead_code)]
 fn find_marker(input: &str, n: usize) -> Option<usize> {

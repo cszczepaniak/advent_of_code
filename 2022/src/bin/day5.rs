@@ -1,5 +1,6 @@
 use std::collections::BTreeMap;
 
+use common::runner_main;
 use nom::{
     branch::alt,
     bytes::complete::take,
@@ -10,61 +11,52 @@ use nom::{
     IResult,
 };
 
-#[cfg(windows)]
-const LINE_ENDING: &'static str = "\r\n";
-#[cfg(not(windows))]
-const LINE_ENDING: &'static str = "\n";
+runner_main!(2022, day 5, part1: part_one, part2: part_two);
 
-fn main() -> anyhow::Result<()> {
-    let two_new_lines = LINE_ENDING.to_string() + LINE_ENDING;
+fn part_one(input: &str) -> anyhow::Result<String> {
+    run(input, |items| items.into_iter().rev())
+}
 
-    let input = common::get_input(2022, 5)?;
+fn part_two(input: &str) -> anyhow::Result<String> {
+    run(input, |items| items.into_iter())
+}
 
+fn run<F, R>(input: &str, processor: F) -> anyhow::Result<String>
+where
+    R: Iterator<Item = char>,
+    F: FnMut(Vec<char>) -> R,
+{
     let (stacks, instructions) = input
-        .split_once(&two_new_lines)
+        .split_once("\n\n")
         .expect("input should have a blank line");
 
     // The stacks have a trailing line of indices
     // e.g. 1 2 3 4 5
     let (stacks, _) = stacks
-        .rsplit_once(LINE_ENDING)
+        .rsplit_once("\n")
         .expect("expected splitting off the indices to succeed");
 
     let stacks = parse_stacks(&stacks)?;
 
-    let part_one = process_stacks(
-        stacks.clone(),
-        parse_instructions(instructions),
-        |to, items| {
-            to.extend(items.iter().rev());
-        },
-    )?;
-    println!("{part_one}");
-
-    let part_two = process_stacks(stacks, parse_instructions(instructions), |to, items| {
-        to.extend(items);
-    })?;
-    println!("{part_two}");
-
-    Ok(())
+    process_stacks(stacks.clone(), parse_instructions(instructions), processor)
 }
 
-fn process_stacks<F>(
+fn process_stacks<F, R>(
     mut stacks: BTreeMap<usize, Vec<char>>,
     instructions: impl Iterator<Item = Instruction>,
     mut processor: F,
 ) -> anyhow::Result<String>
 where
-    F: FnMut(&mut Vec<char>, Vec<char>),
+    R: Iterator<Item = char>,
+    F: FnMut(Vec<char>) -> R,
 {
     for ins in instructions {
         let from = stacks.get_mut(&ins.dir.from).unwrap();
         let idx = from.len().saturating_sub(ins.n);
         let tail = from.split_off(idx);
 
-        let mut to = stacks.get_mut(&ins.dir.to).unwrap();
-
-        processor(&mut to, tail);
+        let to = stacks.get_mut(&ins.dir.to).unwrap();
+        to.extend(processor(tail));
     }
 
     let mut res_str = String::with_capacity(stacks.len());
