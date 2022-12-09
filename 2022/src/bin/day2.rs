@@ -1,29 +1,25 @@
 use std::str::FromStr;
 
-use common::network;
+use common::runner_main;
 
-fn main() -> anyhow::Result<()> {
-    let input = network::get_input(2022, 2)?;
+runner_main!(2022, day 2, part1: part_one, part2: part_two);
 
-    let part_one: usize = input
+fn part_one(input: &str) -> anyhow::Result<usize> {
+    Ok(input
         .lines()
         .map(|l| l.parse::<PartOneInput>().expect("bad puzzle input"))
         .map(|input| input.me.score() + input.me.calculate_result(&input.other).score())
-        .sum();
+        .sum())
+}
 
-    println!("part 1: {part_one}");
-
-    let part_two: usize = input
+fn part_two(input: &str) -> anyhow::Result<usize> {
+    Ok(input
         .lines()
         .map(|l| l.parse::<PartTwoInput>().expect("bad puzzle input"))
         .map(|input| {
             input.other.should_choose(&input.desired_result).score() + input.desired_result.score()
         })
-        .sum();
-
-    println!("part 2: {part_two}");
-
-    Ok(())
+        .sum())
 }
 
 #[derive(Debug)]

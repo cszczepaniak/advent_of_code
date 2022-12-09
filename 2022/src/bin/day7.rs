@@ -1,4 +1,4 @@
-use common::network;
+use common::runner_main;
 use nom::{
     branch::alt,
     bytes::complete::{tag, take_while},
@@ -8,13 +8,47 @@ use nom::{
     Finish, IResult,
 };
 
-const DIR_MAX: usize = 100000;
-const TOTAL_SPACE: usize = 70000000;
-const NEEDED_SPACE: usize = 30000000;
+runner_main!(2022, day 7, part1: part_one, part2: part_two);
 
-fn main() -> anyhow::Result<()> {
-    let input = network::get_input(2022, 7)?;
+fn part_one(input: &str) -> anyhow::Result<usize> {
+    const DIR_MAX: usize = 100000;
 
+    let (tree, root) = build_tree(input)?;
+
+    let mut size_of_dirs = 0usize;
+    traverse(root, &tree, |s| {
+        if s < DIR_MAX {
+            size_of_dirs += s;
+        }
+    });
+    Ok(size_of_dirs)
+}
+
+fn part_two(input: &str) -> anyhow::Result<usize> {
+    const TOTAL_SPACE: usize = 70000000;
+    const NEEDED_SPACE: usize = 30000000;
+
+    let (tree, root) = build_tree(input)?;
+
+    let root_size = traverse(root, &tree, |_| {});
+
+    let curr_unused_space = TOTAL_SPACE - root_size;
+    println!("unused space: {curr_unused_space}");
+
+    let need_to_free = NEEDED_SPACE - curr_unused_space;
+    println!("need to free: {need_to_free}");
+
+    let mut min_to_free = usize::MAX;
+    traverse(root, &tree, |s| {
+        if s >= need_to_free && s < min_to_free {
+            min_to_free = s;
+        }
+    });
+
+    Ok(min_to_free)
+}
+
+fn build_tree(input: &str) -> anyhow::Result<(Tree<NodeData>, NodeId)> {
     let mut arena: Tree<NodeData> = Tree::new();
     let root = arena.new_node(NodeData::Dir("/"));
     let mut curr = root;
@@ -31,29 +65,7 @@ fn main() -> anyhow::Result<()> {
         }
     }
 
-    let mut size_of_dirs = 0usize;
-    let root_size = traverse(root, &arena, |s| {
-        if s < DIR_MAX {
-            size_of_dirs += s;
-        }
-    });
-    println!("part 1 answer: {size_of_dirs}");
-
-    let curr_unused_space = TOTAL_SPACE - root_size;
-    println!("unused space: {curr_unused_space}");
-
-    let need_to_free = NEEDED_SPACE - curr_unused_space;
-    println!("need to free: {need_to_free}");
-
-    let mut min_to_free = usize::MAX;
-    traverse(root, &arena, |s| {
-        if s >= need_to_free && s < min_to_free {
-            min_to_free = s;
-        }
-    });
-    println!("part 2 answer: {min_to_free}");
-
-    Ok(())
+    Ok((arena, root))
 }
 
 fn traverse<F>(root: NodeId, arena: &Tree<NodeData>, mut delegate: F) -> usize

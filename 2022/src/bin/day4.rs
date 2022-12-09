@@ -1,6 +1,6 @@
 use std::str::FromStr;
 
-use common::network;
+use common::runner_main;
 use nom::{
     bytes::complete::tag,
     character::complete::char,
@@ -11,26 +11,22 @@ use nom::{
     Finish, IResult,
 };
 
-fn main() -> anyhow::Result<()> {
-    let input = network::get_input(2022, 4)?;
+runner_main!(2022, day 4, part1: part_one, part2: part_two);
 
-    let part_one = input
+fn part_one(input: &str) -> anyhow::Result<usize> {
+    Ok(input
         .lines()
         .map(|l| l.parse::<InputLine>().unwrap())
         .filter(|InputLine(r1, r2)| r1.contains_range(&r2) || r2.contains_range(&r1))
-        .count();
+        .count())
+}
 
-    println!("part 1: {part_one}");
-
-    let part_two = input
+fn part_two(input: &str) -> anyhow::Result<usize> {
+    Ok(input
         .lines()
         .map(|l| l.parse::<InputLine>().unwrap())
         .filter(|InputLine(r1, r2)| r1.overlaps(&r2))
-        .count();
-
-    println!("part 2: {part_two}");
-
-    Ok(())
+        .count())
 }
 
 #[derive(Debug)]
