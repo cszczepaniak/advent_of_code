@@ -13,20 +13,20 @@ use nom::{
 
 runner_main!(2022, day 4, part1: part_one, part2: part_two);
 
-fn part_one(input: &str) -> anyhow::Result<usize> {
-    Ok(input
+fn part_one(input: &str) -> usize {
+    input
         .lines()
         .map(|l| l.parse::<InputLine>().unwrap())
         .filter(|InputLine(r1, r2)| r1.contains_range(&r2) || r2.contains_range(&r1))
-        .count())
+        .count()
 }
 
-fn part_two(input: &str) -> anyhow::Result<usize> {
-    Ok(input
+fn part_two(input: &str) -> usize {
+    input
         .lines()
         .map(|l| l.parse::<InputLine>().unwrap())
         .filter(|InputLine(r1, r2)| r1.overlaps(&r2))
-        .count())
+        .count()
 }
 
 #[derive(Debug)]

@@ -7,6 +7,16 @@ where
     fn solve(&self, input: &str) -> Result<R, E>;
 }
 
+impl<R, F> Solution<R, R, anyhow::Error> for F
+where
+    R: Display,
+    F: Fn(&str) -> R,
+{
+    fn solve(&self, input: &str) -> Result<R, anyhow::Error> {
+        Ok(self(input))
+    }
+}
+
 impl<R, E, F> Solution<Result<R, E>, R, E> for F
 where
     R: Display,

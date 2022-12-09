@@ -4,22 +4,22 @@ use common::runner_main;
 
 runner_main!(2022, day 2, part1: part_one, part2: part_two);
 
-fn part_one(input: &str) -> anyhow::Result<usize> {
-    Ok(input
+fn part_one(input: &str) -> usize {
+    input
         .lines()
         .map(|l| l.parse::<PartOneInput>().expect("bad puzzle input"))
         .map(|input| input.me.score() + input.me.calculate_result(&input.other).score())
-        .sum())
+        .sum()
 }
 
-fn part_two(input: &str) -> anyhow::Result<usize> {
-    Ok(input
+fn part_two(input: &str) -> usize {
+    input
         .lines()
         .map(|l| l.parse::<PartTwoInput>().expect("bad puzzle input"))
         .map(|input| {
             input.other.should_choose(&input.desired_result).score() + input.desired_result.score()
         })
-        .sum())
+        .sum()
 }
 
 #[derive(Debug)]

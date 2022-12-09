@@ -6,14 +6,12 @@ const GROUP_SEPARATOR: &'static str = "\n\n";
 
 runner_main!(2022, day 1, part1: part_one, part2: part_two);
 
-fn part_one(input: &str) -> anyhow::Result<usize> {
-    let group_sums = parse_and_sort(input);
-    Ok(group_sums[0])
+fn part_one(input: &str) -> usize {
+    parse_and_sort(input)[0]
 }
 
-fn part_two(input: &str) -> anyhow::Result<usize> {
-    let group_sums = parse_and_sort(input);
-    Ok(group_sums.iter().take(3).sum())
+fn part_two(input: &str) -> usize {
+    parse_and_sort(input).iter().take(3).sum()
 }
 
 fn parse_and_sort(input: &str) -> Vec<usize> {

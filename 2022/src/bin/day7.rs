@@ -21,6 +21,7 @@ fn part_one(input: &str) -> anyhow::Result<usize> {
             size_of_dirs += s;
         }
     });
+
     Ok(size_of_dirs)
 }
 
