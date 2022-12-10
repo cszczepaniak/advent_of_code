@@ -1,46 +1,11 @@
-use std::str::FromStr;
+use advent::day1;
+use common::runner;
 
-use common::runner_main;
+fn main() -> anyhow::Result<()> {
+    let input = common::network::get_input(2022, 1)?;
 
-const GROUP_SEPARATOR: &'static str = "\n\n";
+    runner::run_solution(&input, day1::part_one)?;
+    runner::run_solution(&input, day1::part_two)?;
 
-runner_main!(2022, day 1, part1: part_one, part2: part_two);
-
-fn part_one(input: &str) -> usize {
-    parse_and_sort(input)[0]
-}
-
-fn part_two(input: &str) -> usize {
-    parse_and_sort(input).iter().take(3).sum()
-}
-
-fn parse_and_sort(input: &str) -> Vec<usize> {
-    let mut group_sums: Vec<usize> = input
-        .split(GROUP_SEPARATOR)
-        .map(|l| l.parse::<Group>().expect("bad puzzle input"))
-        .map(|g| g.0)
-        .collect();
-
-    group_sums.sort_by(|a, b| b.cmp(a));
-
-    group_sums
-}
-
-struct Group(usize);
-
-impl FromStr for Group {
-    type Err = anyhow::Error;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let res = s
-            .trim()
-            .lines()
-            .map(|l| {
-                l.parse::<usize>()
-                    .map_err(|_| anyhow::anyhow!("failed to parse int"))
-            })
-            .sum::<Result<usize, _>>()?;
-
-        Ok(Self(res))
-    }
+    Ok(())
 }

@@ -1,50 +1,11 @@
-use std::collections::HashSet;
+use advent::day3;
+use common::runner;
 
-use common::runner_main;
+fn main() -> anyhow::Result<()> {
+    let input = common::network::get_input(2022, 3)?;
 
-runner_main!(2022, day 3, part1: part_one, part2: part_two);
+    runner::run_solution(&input, day3::part_one)?;
+    runner::run_solution(&input, day3::part_two)?;
 
-fn part_one(input: &str) -> anyhow::Result<usize> {
-    input
-        .lines()
-        .map(|l| {
-            [
-                HashSet::from_iter(l[..l.len() / 2].chars()),
-                HashSet::from_iter(l[l.len() / 2..].chars()),
-            ]
-        })
-        .map(|ch| priority_for_chunk(&ch))
-        .sum()
-}
-
-fn part_two(input: &str) -> anyhow::Result<usize> {
-    input
-        .lines()
-        .map(|l| HashSet::from_iter(l.chars()))
-        .collect::<Vec<_>>()
-        .chunks(3)
-        .map(priority_for_chunk)
-        .sum()
-}
-
-fn priority_for_chunk(ch: &[HashSet<char>]) -> anyhow::Result<usize> {
-    let mut res = ch
-        .get(0)
-        .ok_or(anyhow::anyhow!("expected at least one thing in chunk"))?
-        .clone();
-
-    for r in ch.iter().skip(1) {
-        res.retain(|c| r.contains(c));
-    }
-
-    if res.len() != 1 {
-        anyhow::bail!("expected only one shared item");
-    }
-
-    let shared = res.iter().next().unwrap();
-    if shared.is_ascii_lowercase() {
-        Ok(*shared as usize - 'a' as usize + 1)
-    } else {
-        Ok(*shared as usize - 'A' as usize + 1 + 26)
-    }
+    Ok(())
 }

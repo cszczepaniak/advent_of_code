@@ -1,4 +1,9 @@
-use std::{env::current_dir, fs::File, io::Write, path::Path};
+use std::{
+    env::current_dir,
+    fs::{File, OpenOptions},
+    io::Write,
+    path::Path,
+};
 
 use chrono::Datelike;
 use clap::{Parser, Subcommand};
@@ -18,7 +23,7 @@ async fn main() -> anyhow::Result<()> {
             output,
             config,
         } => download(year, day, output, config).await?,
-        Commands::Init { year, day, output } => init(year, day, output)?,
+        Commands::Init { year, day } => init(year, day)?,
     };
 
     Ok(())
@@ -68,16 +73,25 @@ async fn download(
     Ok(())
 }
 
-fn init(year: Option<usize>, day: Option<usize>, output: Option<String>) -> anyhow::Result<()> {
+fn init(year: Option<usize>, day: Option<usize>) -> anyhow::Result<()> {
     let year = year.unwrap_or_else(|| chrono::Local::now().year() as usize);
     let day = day.unwrap_or_else(|| chrono::Local::now().day() as usize);
 
-    let output = output.unwrap_or(format!("src/bin/day{}.rs", day));
+    let reg = Handlebars::new();
 
+    let output = format!("src/bin/day{}.rs", day);
     let f = File::create(output)?;
 
-    let reg = Handlebars::new();
-    reg.render_template_to_write(TEMPLATE, &json!({ "day": day, "year": year }), f)?;
+    reg.render_template_to_write(BIN_TEMPLATE, &json!({ "day": day, "year": year }), f)?;
+
+    let output = format!("src/day{}.rs", day);
+    let f = File::create(output)?;
+
+    reg.render_template_to_write(LIB_TEMPLATE, &json!({}), f)?;
+
+    let lib_file = "src/lib.rs";
+    let mut f = OpenOptions::new().write(true).append(true).open(lib_file)?;
+    writeln!(f, "pub mod day{};", day)?;
 
     Ok(())
 }
@@ -136,9 +150,6 @@ enum Commands {
 
         #[arg(short, long)]
         day: Option<usize>,
-
-        #[arg(short, long)]
-        output: Option<String>,
     },
 }
 
@@ -147,23 +158,22 @@ struct Config {
     cookie: String,
 }
 
-static TEMPLATE: &str = "use std::str::FromStr;
+static BIN_TEMPLATE: &str = "use advent::day{{day}};
+use common::runner;
 
 fn main() -> anyhow::Result<()> {
-    let input = common::get_input({{year}}, {{day}})?;
+    let input = common::network::get_input({{year}}, {{day}})?;
 
-    // let part_one = input
-    //    .lines()
-    //    .map(|l| l.parse::<TInput>().unwrap())
-
-    // println!(\"part 1: {part_one}\");
-
-    // let part_two = input
-    //    .lines()
-    //    .map(|l| l.parse::<TInput>().unwrap())
-
-    // println!(\"part 2: {part_two}\");
+    runner::run_solution(&input, day{{day}}::part_one)?;
+    runner::run_solution(&input, day{{day}}::part_two)?;
 
     Ok(())
+}";
+
+static LIB_TEMPLATE: &str = "pub fn part_one(input: &str) -> usize {
+    todo!()
 }
-";
+
+pub fn part_two(input: &str) -> usize {
+    todo!()
+}";
