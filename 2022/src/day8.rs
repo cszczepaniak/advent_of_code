@@ -1,54 +1,24 @@
-use std::{collections::HashSet, str::FromStr};
+use std::str::FromStr;
 
 pub fn part_one(input: &str) -> anyhow::Result<usize> {
     let grid: Grid = input.parse()?;
 
-    let mut res = HashSet::new();
-    // Insert the corners; we won't hit them below
-    res.insert((0, 0));
-    res.insert((0, grid.n_cols() - 1));
-    res.insert((grid.n_rows() - 1, 0));
-    res.insert((grid.n_rows() - 1, grid.n_cols() - 1));
-
-    for row in 1..grid.n_rows() - 1 {
-        let mut max = -1;
+    let mut seen = 0;
+    for row in 0..grid.n_rows() {
         for col in 0..grid.n_cols() {
             let height = grid.rows[row][col];
-            if height > max {
-                max = height;
-                res.insert((row, col));
-            }
-        }
-        let mut max = -1;
-        for col in (0..grid.n_cols()).rev() {
-            let height = grid.rows[row][col];
-            if height > max {
-                max = height;
-                res.insert((row, col));
+
+            for d in Direction::all() {
+                let mut ray = grid.ray(col, row, d);
+                if ray.all(|n| n < height) {
+                    seen += 1;
+                    break;
+                }
             }
         }
     }
 
-    for col in 1..grid.n_cols() - 1 {
-        let mut max = -1;
-        for row in 0..grid.n_rows() {
-            let height = grid.rows[row][col];
-            if height > max {
-                max = height;
-                res.insert((row, col));
-            }
-        }
-        let mut max = -1;
-        for row in (0..grid.n_rows()).rev() {
-            let height = grid.rows[row][col];
-            if height > max {
-                max = height;
-                res.insert((row, col));
-            }
-        }
-    }
-
-    Ok(res.len())
+    Ok(seen)
 }
 
 pub fn part_two(input: &str) -> anyhow::Result<usize> {
@@ -70,45 +40,19 @@ pub fn part_two(input: &str) -> anyhow::Result<usize> {
 
 fn calculate_scenic_score(grid: &Grid, (row, col): (usize, usize)) -> usize {
     let height = grid.rows[row][col];
-    let mut score = 1;
 
-    let mut count = 0;
-    for i in (row + 1)..grid.n_rows() {
-        count += 1;
-        if grid.rows[i][col] >= height {
-            break;
-        }
-    }
-    score *= count;
-
-    let mut count = 0;
-    for i in (0..row).rev() {
-        count += 1;
-        if grid.rows[i][col] >= height {
-            break;
-        }
-    }
-    score *= count;
-
-    let mut count = 0;
-    for i in (col + 1)..grid.n_cols() {
-        count += 1;
-        if grid.rows[row][i] >= height {
-            break;
-        }
-    }
-    score *= count;
-
-    let mut count = 0;
-    for i in (0..col).rev() {
-        count += 1;
-        if grid.rows[row][i] >= height {
-            break;
-        }
-    }
-    score *= count;
-
-    score
+    Direction::all()
+        .map(|d| {
+            let mut num_trees = 0;
+            for n in grid.ray(col, row, d) {
+                num_trees += 1;
+                if n >= height {
+                    break;
+                }
+            }
+            num_trees
+        })
+        .product()
 }
 
 struct Grid {
@@ -116,12 +60,79 @@ struct Grid {
 }
 
 impl<'a> Grid {
+    fn ray(&'a self, x: usize, y: usize, direction: Direction) -> Ray<'a> {
+        Ray::new(x, y, direction, self)
+    }
+
     fn n_rows(&self) -> usize {
         self.rows.len()
     }
 
     fn n_cols(&self) -> usize {
         self.rows[0].len()
+    }
+}
+
+#[derive(Debug)]
+enum Direction {
+    Up,
+    Down,
+    Left,
+    Right,
+}
+
+impl Direction {
+    fn all() -> impl Iterator<Item = Self> {
+        [Self::Up, Self::Down, Self::Left, Self::Right].into_iter()
+    }
+
+    fn delta(&self) -> (isize, isize) {
+        match self {
+            Direction::Up => (0, -1),
+            Direction::Down => (0, 1),
+            Direction::Left => (-1, 0),
+            Direction::Right => (1, 0),
+        }
+    }
+}
+
+struct Ray<'a> {
+    grid: &'a Grid,
+    curr: (isize, isize),
+    direction: Direction,
+}
+
+impl<'a> Ray<'a> {
+    fn new(x: usize, y: usize, direction: Direction, grid: &'a Grid) -> Self {
+        let x = x as isize;
+        let y = y as isize;
+
+        let (dx, dy) = direction.delta();
+        let start = (x + dx, y + dy);
+
+        Self {
+            grid,
+            curr: start,
+            direction,
+        }
+    }
+}
+
+impl<'a> Iterator for Ray<'a> {
+    type Item = isize;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let (x, y) = self.curr;
+        if x < 0 || y < 0 {
+            return None;
+        }
+
+        let res = self.grid.rows.get(y as usize)?.get(x as usize)?;
+        let (dx, dy) = self.direction.delta();
+        self.curr.0 += dx;
+        self.curr.1 += dy;
+
+        Some(*res)
     }
 }
 
