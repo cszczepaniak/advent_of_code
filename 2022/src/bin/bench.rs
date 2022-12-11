@@ -55,7 +55,7 @@ fn main() -> anyhow::Result<()> {
     for i in 1..=outputs.len() / 2 {
         for j in [1, 2] {
             let res = outputs.get(&(i, j)).unwrap();
-            writeln!(f, "|{}|{:.2}|", res.name, res.time)?;
+            writeln!(f, "|{}|{:.0}|", res.name, res.time)?;
         }
     }
 
