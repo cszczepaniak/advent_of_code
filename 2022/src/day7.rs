@@ -31,10 +31,7 @@ pub fn part_two(input: &str) -> anyhow::Result<usize> {
     let root_size = traverse(root, &tree, |_| {});
 
     let curr_unused_space = TOTAL_SPACE - root_size;
-    println!("unused space: {curr_unused_space}");
-
     let need_to_free = NEEDED_SPACE - curr_unused_space;
-    println!("need to free: {need_to_free}");
 
     let mut min_to_free = usize::MAX;
     traverse(root, &tree, |s| {
