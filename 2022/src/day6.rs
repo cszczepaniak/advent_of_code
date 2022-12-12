@@ -20,14 +20,10 @@ fn find_marker(input: &str, n: usize) -> Option<usize> {
 }
 
 fn find_marker_optimized(input: &str, n: usize) -> Option<usize> {
-    for (i, _) in input.char_indices() {
-        if i < n {
-            continue;
-        }
-
-        let window = &input[i.saturating_sub(n - 1)..=i];
+    for i in 0..input.len() - n {
+        let window = &input[i..i + n];
         if all_unique(window) {
-            return Some(i + 1);
+            return Some(i + n);
         }
     }
 
