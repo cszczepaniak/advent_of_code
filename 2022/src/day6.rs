@@ -20,20 +20,13 @@ fn find_marker(input: &str, n: usize) -> Option<usize> {
 }
 
 fn find_marker_optimized(input: &str, n: usize) -> Option<usize> {
-    let mut bits = 0u32;
     for (i, _) in input.char_indices() {
-        if i >= n {
-            let leaving = input.as_bytes()[i - n] as char;
-            bits &= map_to_clear_mask(leaving);
+        if i < n {
+            continue;
         }
-        let entering = input.as_bytes()[i] as char;
-        bits |= map_to_set_mask_single(entering);
-        println!("{:b}", bits);
 
-        // let window = &input[i.saturating_sub(n - 1)..=i];
-        // bits |= map_to_set_mask(window);
-
-        if count_bits(bits) == n {
+        let window = &input[i.saturating_sub(n - 1)..=i];
+        if all_unique(window) {
             return Some(i + 1);
         }
     }
@@ -41,33 +34,17 @@ fn find_marker_optimized(input: &str, n: usize) -> Option<usize> {
     None
 }
 
-fn map_to_set_mask(s: &str) -> u32 {
-    let mut res = 0u32;
+fn all_unique(s: &str) -> bool {
+    let mut bits = 0u32;
     for c in s.chars() {
         let idx = c as u32 - 'a' as u32;
-        res |= 1 << idx;
+        let bit = 1 << idx;
+        if bits & bit > 0 {
+            return false;
+        }
+        bits |= 1 << idx;
     }
-    res
-}
-
-fn map_to_clear_mask(c: char) -> u32 {
-    let idx = c as u32 - 'a' as u32;
-    !(1 << idx)
-}
-
-fn map_to_set_mask_single(c: char) -> u32 {
-    let idx = c as u32 - 'a' as u32;
-    1 << idx
-}
-
-fn count_bits(mut n: u32) -> usize {
-    let mut res = 0u32;
-    while n > 0 {
-        n &= n - 1;
-        res += 1;
-    }
-
-    res as usize
+    true
 }
 
 #[cfg(test)]
