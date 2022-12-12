@@ -26,9 +26,12 @@ fn find_marker_optimized(input: &str, n: usize) -> Option<usize> {
             let leaving = input.as_bytes()[i - n] as char;
             bits &= map_to_clear_mask(leaving);
         }
+        let entering = input.as_bytes()[i] as char;
+        bits |= map_to_set_mask_single(entering);
+        println!("{:b}", bits);
 
-        let window = &input[i.saturating_sub(n - 1)..=i];
-        bits |= map_to_set_mask(window);
+        // let window = &input[i.saturating_sub(n - 1)..=i];
+        // bits |= map_to_set_mask(window);
 
         if count_bits(bits) == n {
             return Some(i + 1);
@@ -50,6 +53,11 @@ fn map_to_set_mask(s: &str) -> u32 {
 fn map_to_clear_mask(c: char) -> u32 {
     let idx = c as u32 - 'a' as u32;
     !(1 << idx)
+}
+
+fn map_to_set_mask_single(c: char) -> u32 {
+    let idx = c as u32 - 'a' as u32;
+    1 << idx
 }
 
 fn count_bits(mut n: u32) -> usize {
