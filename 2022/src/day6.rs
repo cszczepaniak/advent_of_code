@@ -54,9 +54,9 @@ fn map_to_clear_mask(c: char) -> u32 {
 
 fn count_bits(mut n: u32) -> usize {
     let mut res = 0u32;
-    for _ in 0..32 {
-        res += n & 1;
-        n >>= 1;
+    while n > 0 {
+        n &= n - 1;
+        res += 1;
     }
 
     res as usize
