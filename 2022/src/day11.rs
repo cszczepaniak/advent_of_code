@@ -11,43 +11,42 @@ use nom::{
 };
 
 pub fn part_one(input: &str) -> anyhow::Result<usize> {
-    let mut monkeys = Vec::new();
-    for ch in input.split("\n\n") {
-        let m: Monkey = Monkey::parse(ch, 3)?;
-        monkeys.push(RefCell::new(m));
-    }
+    let monkeys = parse_monkeys(input, 3)?;
 
-    for _ in 0..20 {
-        for i in 0..monkeys.len() {
-            process_items(i, &monkeys, |n| n);
-        }
-    }
-
-    monkeys.sort_by(|a, b| b.borrow().items_inspected.cmp(&a.borrow().items_inspected));
-
-    let res = monkeys[0].borrow().items_inspected * monkeys[1].borrow().items_inspected;
+    let res = run(monkeys, 20, |n| n);
     Ok(res)
 }
 
 pub fn part_two(input: &str) -> anyhow::Result<usize> {
-    let mut monkeys = Vec::new();
-    for ch in input.split("\n\n") {
-        let m: Monkey = Monkey::parse(ch, 1)?;
-        monkeys.push(RefCell::new(m));
-    }
-
+    let monkeys = parse_monkeys(input, 1)?;
     let lcm: usize = monkeys.iter().map(|m| m.borrow().test_divisor).product();
 
-    for _ in 0..10000 {
+    let res = run(monkeys, 10000, |n| n % lcm);
+    Ok(res)
+}
+
+fn parse_monkeys(input: &str, divide_by: usize) -> anyhow::Result<Vec<RefCell<Monkey>>> {
+    let mut monkeys = Vec::new();
+    for ch in input.split("\n\n") {
+        let m: Monkey = Monkey::parse(ch, divide_by)?;
+        monkeys.push(RefCell::new(m));
+    }
+    Ok(monkeys)
+}
+
+fn run<F>(mut monkeys: Vec<RefCell<Monkey>>, turns: usize, reduce: F) -> usize
+where
+    F: Fn(usize) -> usize,
+{
+    for _ in 0..turns {
         for i in 0..monkeys.len() {
-            process_items(i, &monkeys, |n| n % lcm);
+            process_items(i, &monkeys, &reduce);
         }
     }
 
     monkeys.sort_by(|a, b| b.borrow().items_inspected.cmp(&a.borrow().items_inspected));
 
-    let res = monkeys[0].borrow().items_inspected * monkeys[1].borrow().items_inspected;
-    Ok(res)
+    monkeys[0].borrow().items_inspected * monkeys[1].borrow().items_inspected
 }
 
 fn process_items<F>(idx: usize, monkeys: &Vec<RefCell<Monkey>>, reduce: F)
@@ -57,7 +56,8 @@ where
     let mut me = monkeys[idx].borrow_mut();
     let num_items = me.items.len();
     for item in me.items.iter() {
-        let mut new_item = reduce(me.op.eval(*item));
+        let mut new_item = me.op.eval(*item);
+        new_item = reduce(new_item);
         new_item /= me.divide_by;
 
         if new_item % me.test_divisor == 0 {
