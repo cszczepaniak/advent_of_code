@@ -1,4 +1,4 @@
-use std::cell::RefCell;
+use std::{cell::RefCell, str::FromStr};
 
 use nom::{
     branch::alt,
@@ -11,24 +11,24 @@ use nom::{
 };
 
 pub fn part_one(input: &str) -> anyhow::Result<usize> {
-    let monkeys = parse_monkeys(input, 3)?;
+    let monkeys = parse_monkeys(input)?;
 
-    let res = run(monkeys, 20, |n| n);
+    let res = run(monkeys, 20, |n| n / 3);
     Ok(res)
 }
 
 pub fn part_two(input: &str) -> anyhow::Result<usize> {
-    let monkeys = parse_monkeys(input, 1)?;
+    let monkeys = parse_monkeys(input)?;
     let lcm: usize = monkeys.iter().map(|m| m.borrow().test_divisor).product();
 
     let res = run(monkeys, 10000, |n| n % lcm);
     Ok(res)
 }
 
-fn parse_monkeys(input: &str, divide_by: usize) -> anyhow::Result<Vec<RefCell<Monkey>>> {
+fn parse_monkeys(input: &str) -> anyhow::Result<Vec<RefCell<Monkey>>> {
     let mut monkeys = Vec::new();
     for ch in input.split("\n\n") {
-        let m: Monkey = Monkey::parse(ch, divide_by)?;
+        let m: Monkey = ch.parse()?;
         monkeys.push(RefCell::new(m));
     }
     Ok(monkeys)
@@ -58,7 +58,6 @@ where
     for item in me.items.iter() {
         let mut new_item = me.op.eval(*item);
         new_item = reduce(new_item);
-        new_item /= me.divide_by;
 
         if new_item % me.test_divisor == 0 {
             let mut other = monkeys[me.if_true].borrow_mut();
@@ -77,13 +76,14 @@ struct Monkey {
     op: Operation,
     items_inspected: usize,
     test_divisor: usize,
-    divide_by: usize,
     if_true: usize,
     if_false: usize,
 }
 
-impl Monkey {
-    fn parse(s: &str, divide_by: usize) -> anyhow::Result<Self> {
+impl FromStr for Monkey {
+    type Err = anyhow::Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
         let mut lines = s.lines();
 
         let index_line = lines
@@ -146,7 +146,6 @@ impl Monkey {
             op,
             items_inspected: 0,
             test_divisor,
-            divide_by,
             if_true,
             if_false,
         })
@@ -286,7 +285,7 @@ Test: divisible by 17
           If true: throw to monkey 1
           If false: throw to monkey 3";
 
-        let m = Monkey::parse(input, 3).unwrap();
+        let m: Monkey = input.parse().unwrap();
 
         assert_eq!(vec![79, 60, 97], m.items);
         assert_eq!(4, m.op.eval(2));
