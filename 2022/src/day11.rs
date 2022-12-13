@@ -3,7 +3,7 @@ use std::{cell::RefCell, str::FromStr};
 use nom::{
     branch::alt,
     bytes::complete::tag,
-    character::complete,
+    character::complete::{self, multispace0},
     combinator::map,
     multi::separated_list0,
     sequence::{delimited, preceded},
@@ -55,17 +55,18 @@ where
 {
     let mut me = monkeys[idx].borrow_mut();
     let num_items = me.items.len();
+
     for item in me.items.iter() {
         let mut new_item = me.op.eval(*item);
         new_item = reduce(new_item);
 
-        if new_item % me.test_divisor == 0 {
-            let mut other = monkeys[me.if_true].borrow_mut();
-            other.items.push(new_item);
+        let mut other = if new_item % me.test_divisor == 0 {
+            monkeys[me.if_true].borrow_mut()
         } else {
-            let mut other = monkeys[me.if_false].borrow_mut();
-            other.items.push(new_item);
-        }
+            monkeys[me.if_false].borrow_mut()
+        };
+
+        other.items.push(new_item);
     }
     me.items.drain(0..num_items);
     me.items_inspected += num_items;
@@ -84,72 +85,32 @@ impl FromStr for Monkey {
     type Err = anyhow::Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let mut lines = s.lines();
-
-        let index_line = lines
-            .next()
-            .ok_or(anyhow::anyhow!("expected to find input line"))?
-            .trim();
-
-        let starting_items_line = lines
-            .next()
-            .ok_or(anyhow::anyhow!("expected to find starting items"))?
-            .trim();
-
-        let op_line = lines
-            .next()
-            .ok_or(anyhow::anyhow!("expected to find operation line"))?
-            .trim();
-
-        let test_line = lines
-            .next()
-            .ok_or(anyhow::anyhow!("expected to find test line"))?
-            .trim();
-
-        let if_true_line = lines
-            .next()
-            .ok_or(anyhow::anyhow!("expected to find 'if true' line"))?
-            .trim();
-
-        let if_false_line = lines
-            .next()
-            .ok_or(anyhow::anyhow!("expected to find 'if false' line"))?
-            .trim();
-
-        // We just parse the index to make sure the input is well-formed
-        let (_, _) = parse_index(index_line)
+        parse_monkey(s)
             .finish()
-            .map_err(|_| anyhow::anyhow!("failed to parse index"))?;
+            .map(|(_, m)| m)
+            .map_err(|_| anyhow::anyhow!("failed to parse monkey"))
+    }
+}
 
-        let (_, items) = parse_starting_items(starting_items_line)
-            .finish()
-            .map_err(|_| anyhow::anyhow!("failed to parse items"))?;
+fn parse_monkey(input: &str) -> IResult<&str, Monkey> {
+    let (input, _) = preceded(multispace0, parse_index)(input)?;
+    let (input, items) = preceded(multispace0, parse_starting_items)(input)?;
+    let (input, op) = preceded(multispace0, parse_operation)(input)?;
+    let (input, test_divisor) = preceded(multispace0, parse_divisible_by)(input)?;
+    let (input, if_true) = preceded(multispace0, parse_if_true)(input)?;
+    let (input, if_false) = preceded(multispace0, parse_if_false)(input)?;
 
-        let (_, op) = parse_operation(op_line)
-            .finish()
-            .map_err(|_| anyhow::anyhow!("failed to parse operation"))?;
-
-        let (_, test_divisor) = parse_divisible_by(test_line)
-            .finish()
-            .map_err(|_| anyhow::anyhow!("failed to parse divisor"))?;
-
-        let (_, if_true) = parse_if_true(if_true_line)
-            .finish()
-            .map_err(|_| anyhow::anyhow!("failed to parse if true"))?;
-
-        let (_, if_false) = parse_if_false(if_false_line)
-            .finish()
-            .map_err(|_| anyhow::anyhow!("failed to parse if false"))?;
-
-        Ok(Monkey {
+    Ok((
+        input,
+        Monkey {
             items,
             op,
             items_inspected: 0,
             test_divisor,
             if_true,
             if_false,
-        })
-    }
+        },
+    ))
 }
 
 fn usize(input: &str) -> IResult<&str, usize> {
@@ -170,9 +131,9 @@ fn parse_starting_items(input: &str) -> IResult<&str, Vec<usize>> {
 
 fn parse_operation(input: &str) -> IResult<&str, Operation> {
     let (input, _) = tag("Operation: new = ")(input)?;
-    let (input, lhs) = parse_expression(input).expect("failed to parse lhs");
-    let (input, op) = parse_operator(input).expect("failed to parse op");
-    let (input, rhs) = parse_expression(input).expect("failed to parse rhs");
+    let (input, lhs) = parse_expression(input)?;
+    let (input, op) = parse_operator(input)?;
+    let (input, rhs) = parse_expression(input)?;
 
     Ok((input, Operation { rhs, lhs, op }))
 }
