@@ -1,17 +1,16 @@
 use std::{
-    collections::HashMap,
     fs::{self, File, OpenOptions},
-    io::Write,
     path::Path,
 };
 
+use advent::bench::Bench;
 use regex::Regex;
 use serde::Deserialize;
 
 fn main() -> anyhow::Result<()> {
     let criterion_dir = Path::new("target").join("criterion");
     let file_pattern = Regex::new("day(\\d+)")?;
-    let mut outputs = HashMap::new();
+    let mut benches = Vec::new();
     for e in fs::read_dir(criterion_dir)? {
         let e = e?;
         let n = e.file_name();
@@ -36,38 +35,26 @@ fn main() -> anyhow::Result<()> {
             let f = OpenOptions::new().read(true).open(&p)?;
             let br: BenchResult = serde_json::from_reader(f)?;
 
-            outputs.insert(
-                (day_num, i),
-                Output {
-                    name: format!("day {day_num} part {i}"),
-                    time: br
-                        .slope
-                        .unwrap_or(br.mean.unwrap_or_default())
-                        .point_estimate,
-                },
-            );
+            let mut time = usize::MAX;
+            if let Some(data_point) = br.slope {
+                time = data_point.point_estimate as usize;
+            }
+            if let Some(data_point) = br.mean {
+                time = data_point.point_estimate as usize;
+            }
+
+            benches.push(Bench {
+                day: day_num,
+                part: i,
+                time,
+            });
         }
     }
 
-    let target_file = "results.md";
-    let mut f = File::create(target_file)?;
-
-    writeln!(f, "# Results")?;
-    writeln!(f, "|Puzzle|Duration (ns)|")?;
-    writeln!(f, "|-|-|")?;
-    for i in 1..=outputs.len() / 2 {
-        for j in [1, 2] {
-            let res = outputs.get(&(i, j)).unwrap();
-            writeln!(f, "|{}|{:.0}|", res.name, res.time)?;
-        }
-    }
+    let f = File::create("mine.json")?;
+    serde_json::to_writer(f, &benches)?;
 
     Ok(())
-}
-
-struct Output {
-    name: String,
-    time: f64,
 }
 
 #[derive(Deserialize)]
@@ -80,15 +67,3 @@ struct BenchResult {
 struct DataPoint {
     point_estimate: f64,
 }
-
-/*
-"slope": {
-    "confidence_interval": {
-      "confidence_level": 0.95,
-      "lower_bound": 31658.264695126007,
-      "upper_bound": 31817.016710509768
-    },
-    "point_estimate": 31728.65020503916,
-    "standard_error": 40.17443861211054
-  }
-   */

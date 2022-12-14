@@ -1,3 +1,4 @@
 target/
-dhat-*.json
+*.json
 input/
+compared_results.md

@@ -1,3 +1,4 @@
+pub mod bench;
 pub mod day1;
 pub mod day10;
 pub mod day11;
