@@ -40,7 +40,10 @@ fn main() -> anyhow::Result<()> {
                 (day_num, i),
                 Output {
                     name: format!("day {day_num} part {i}"),
-                    time: br.slope.point_estimate,
+                    time: br
+                        .slope
+                        .unwrap_or(br.mean.unwrap_or_default())
+                        .point_estimate,
                 },
             );
         }
@@ -69,11 +72,12 @@ struct Output {
 
 #[derive(Deserialize)]
 struct BenchResult {
-    slope: Slope,
+    slope: Option<DataPoint>,
+    mean: Option<DataPoint>,
 }
 
-#[derive(Deserialize)]
-struct Slope {
+#[derive(Deserialize, Default)]
+struct DataPoint {
     point_estimate: f64,
 }
 
