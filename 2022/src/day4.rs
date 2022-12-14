@@ -1,14 +1,6 @@
 use std::str::FromStr;
 
-use nom::{
-    bytes::complete::tag,
-    character::complete::char,
-    character::complete::one_of,
-    combinator::map_res,
-    multi::{many0, many1},
-    sequence::{separated_pair, terminated},
-    Finish, IResult,
-};
+use nom::{bytes::complete::tag, character::complete, sequence::separated_pair, Finish, IResult};
 
 pub fn part_one(input: &str) -> usize {
     input
@@ -28,8 +20,8 @@ pub fn part_two(input: &str) -> usize {
 
 #[derive(Debug)]
 struct ElfRange {
-    start: isize,
-    end: isize,
+    start: i32,
+    end: i32,
 }
 
 impl ElfRange {
@@ -37,7 +29,7 @@ impl ElfRange {
         other.start >= self.start && self.end >= other.end
     }
 
-    fn contains_point(&self, pt: isize) -> bool {
+    fn contains_point(&self, pt: i32) -> bool {
         pt >= self.start && pt <= self.end
     }
 
@@ -65,15 +57,8 @@ impl FromStr for InputLine {
     }
 }
 
-fn decimal(input: &str) -> IResult<&str, isize> {
-    map_res(
-        many1(terminated(one_of("0123456789"), many0(char('_')))),
-        |r| String::from_iter(r).parse(),
-    )(input)
-}
-
 fn parse_range(input: &str) -> IResult<&str, ElfRange> {
-    let (input, (start, end)) = separated_pair(decimal, tag("-"), decimal)(input)?;
+    let (input, (start, end)) = separated_pair(complete::i32, tag("-"), complete::i32)(input)?;
 
     Ok((input, ElfRange { start, end }))
 }
