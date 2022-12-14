@@ -1,46 +1,55 @@
-use std::collections::HashSet;
-
 pub fn part_one(input: &str) -> anyhow::Result<usize> {
-    input
-        .lines()
-        .map(|l| {
-            [
-                HashSet::from_iter(l[..l.len() / 2].chars()),
-                HashSet::from_iter(l[l.len() / 2..].chars()),
-            ]
-        })
-        .map(|ch| priority_for_chunk(&ch))
-        .sum()
+    let mut res = 0;
+    for l in input.lines() {
+        let w1 = word_to_bits(&l[..l.len() / 2]);
+        let w2 = word_to_bits(&l[l.len() / 2..]);
+        res += priority_for_bits(w1 & w2);
+    }
+    Ok(res)
 }
 
 pub fn part_two(input: &str) -> anyhow::Result<usize> {
-    input
-        .lines()
-        .map(|l| HashSet::from_iter(l.chars()))
-        .collect::<Vec<_>>()
-        .chunks(3)
-        .map(priority_for_chunk)
-        .sum()
+    let mut ws = [0u64; 3];
+    let mut res = 0;
+    for (i, l) in input.lines().enumerate() {
+        ws[i % 3] = word_to_bits(l);
+        if (i + 1) % 3 == 0 {
+            res += priority_for_bits(ws[0] & ws[1] & ws[2]);
+        }
+    }
+    Ok(res)
 }
 
-fn priority_for_chunk(ch: &[HashSet<char>]) -> anyhow::Result<usize> {
-    let mut res = ch
-        .get(0)
-        .ok_or(anyhow::anyhow!("expected at least one thing in chunk"))?
-        .clone();
+fn word_to_bits(w: &str) -> u64 {
+    let mut res = 0;
+    for c in w.chars() {
+        let idx = match c {
+            'a'..='z' => c as usize - 'a' as usize,
+            'A'..='Z' => c as usize - 'A' as usize + 26,
+            _ => unreachable!("expect well-formed input"),
+        };
 
-    for r in ch.iter().skip(1) {
-        res.retain(|c| r.contains(c));
+        res |= 1 << idx;
     }
 
-    if res.len() != 1 {
-        anyhow::bail!("expected only one shared item");
-    }
+    res
+}
 
-    let shared = res.iter().next().unwrap();
-    if shared.is_ascii_lowercase() {
-        Ok(*shared as usize - 'a' as usize + 1)
-    } else {
-        Ok(*shared as usize - 'A' as usize + 1 + 26)
+fn priority_for_bits(bits: u64) -> usize {
+    bits.trailing_zeros() as usize + 1
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parity() {
+        let first_half = "vJrwpWtwJgWr";
+        let second_half = "hcsFMMfFFhFp";
+
+        let priority = priority_for_bits(word_to_bits(first_half) & word_to_bits(second_half));
+
+        assert_eq!('p' as usize - 'a' as usize + 1, priority);
     }
 }
