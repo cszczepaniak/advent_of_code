@@ -1,5 +1,7 @@
 use std::{
+    collections::BTreeMap,
     fs::{self, File, OpenOptions},
+    io::Write,
     path::Path,
 };
 
@@ -51,8 +53,24 @@ fn main() -> anyhow::Result<()> {
         }
     }
 
-    let f = File::create("mine.json")?;
-    serde_json::to_writer(f, &benches)?;
+    {
+        let f = File::create("mine.json")?;
+        serde_json::to_writer(f, &benches)?;
+    }
+
+    let f = File::open("mine.json")?;
+    let mine: Vec<Bench> = serde_json::from_reader(f)?;
+    let mine: BTreeMap<(usize, usize), Bench> =
+        mine.into_iter().map(|b| ((b.day, b.part), b)).collect();
+
+    let mut md = File::create("results.md")?;
+    writeln!(md, "# Results")?;
+    writeln!(md, "|Puzzle|Duration (ns)|")?;
+    writeln!(md, "|-|-|")?;
+
+    for ((day, part), Bench { time, .. }) in mine {
+        writeln!(md, "|day {day} part {part}|{time}|")?;
+    }
 
     Ok(())
 }
