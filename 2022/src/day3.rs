@@ -23,16 +23,18 @@ pub fn part_two(input: &str) -> anyhow::Result<usize> {
 fn word_to_bits(w: &str) -> u64 {
     let mut res = 0;
     for c in w.chars() {
-        let idx = match c {
-            'a'..='z' => c as usize - 'a' as usize,
-            'A'..='Z' => c as usize - 'A' as usize + 26,
-            _ => unreachable!("expect well-formed input"),
-        };
-
-        res |= 1 << idx;
+        res |= 1 << char_to_usize(c);
     }
 
     res
+}
+
+fn char_to_usize(c: char) -> usize {
+    if c as usize >= 'a' as usize && c as usize <= 'a' as usize {
+        c as usize - 'a' as usize
+    } else {
+        c as usize - 'A' as usize
+    }
 }
 
 fn priority_for_bits(bits: u64) -> usize {
