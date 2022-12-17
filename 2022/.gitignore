@@ -2,3 +2,4 @@ target/
 *.json
 input/
 compared_results.md
+*.svg
