@@ -18,13 +18,13 @@ fn process_part_one_line(l: &str) -> usize {
         'X' => Choice::Rock,
         'Y' => Choice::Paper,
         'Z' => Choice::Scissors,
-        _ => unreachable!("expect goo input"),
+        _ => unreachable!("expect good input"),
     };
     let other = match other_c {
         'A' => Choice::Rock,
         'B' => Choice::Paper,
         'C' => Choice::Scissors,
-        _ => unreachable!("expect goo input"),
+        _ => unreachable!("expect good input"),
     };
 
     me.score() + me.calculate_result(&other).score()
