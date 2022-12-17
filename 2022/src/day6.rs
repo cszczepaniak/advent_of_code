@@ -1,50 +1,112 @@
+use std::{collections::HashSet, hash::Hash};
+
 pub fn part_one(input: &str) -> anyhow::Result<usize> {
-    find_marker(input, 4).ok_or(anyhow::anyhow!("didn't find a marker"))
+    find_marker_v2(input, 4).ok_or(anyhow::anyhow!("didn't find a marker"))
 }
 
 pub fn part_two(input: &str) -> anyhow::Result<usize> {
-    find_marker(input, 14).ok_or(anyhow::anyhow!("didn't find a marker"))
+    find_marker_v2(input, 14).ok_or(anyhow::anyhow!("didn't find a marker"))
 }
 
-fn find_marker(input: &str, n: usize) -> Option<usize> {
-    for i in 0..input.len() - n {
-        let window = &input[i..i + n];
-        if all_unique(window) {
-            return Some(i + n);
+fn find_marker_v2(input: &str, n: usize) -> Option<usize> {
+    let mut u = Uniquer::new(n);
+
+    for (i, c) in input.chars().enumerate() {
+        if i >= n {
+            let leaving = input.as_bytes()[i - n] as char;
+            u.remove(leaving);
+        }
+        u.add(c);
+
+        if u.unique() {
+            return Some(i + 1);
         }
     }
 
     None
 }
 
-fn all_unique(s: &str) -> bool {
-    let mut bits = 0u32;
-    for c in s.chars() {
-        let idx = c as u32 - 'a' as u32;
-        let bit = 1 << idx;
-        if bits & bit > 0 {
+struct Uniquer {
+    state: [usize; 26],
+    num_greater_than_one: usize,
+    n: usize,
+}
+
+impl Uniquer {
+    fn new(n: usize) -> Self {
+        Self {
+            state: [0; 26],
+            num_greater_than_one: 0,
+            n,
+        }
+    }
+
+    fn add(&mut self, c: char) {
+        let idx = c as usize - 'a' as usize;
+        if self.state[idx] == 1 {
+            self.num_greater_than_one += 1;
+        }
+        self.state[idx] += 1;
+    }
+
+    fn remove(&mut self, c: char) {
+        let idx = c as usize - 'a' as usize;
+        if self.state[idx] == 2 {
+            self.num_greater_than_one -= 1;
+        }
+        self.state[idx] -= 1;
+    }
+
+    fn unique(&self) -> bool {
+        if self.num_greater_than_one > 0 {
             return false;
         }
-        bits |= 1 << idx;
+        let mut sum = 0;
+        for count in self.state.iter() {
+            if count > &1 {
+                return false;
+            }
+            sum += count;
+        }
+        sum == self.n
     }
-    true
 }
 
 #[cfg(test)]
 mod tests {
-    use super::find_marker;
+    use super::*;
+
+    #[test]
+    fn part_one_test() {
+        let input = common::network::get_input(2022, 6).unwrap();
+
+        assert_eq!(1766, part_one(&input).unwrap());
+    }
+
+    #[test]
+    fn part_two_test() {
+        let input = common::network::get_input(2022, 6).unwrap();
+
+        assert_eq!(2383, part_two(&input).unwrap());
+    }
 
     #[test]
     fn test_part_one_examples() {
-        assert_eq!(5, find_marker("bvwbjplbgvbhsrlpgdmjqwftvncz", 4).unwrap());
-        assert_eq!(6, find_marker("nppdvjthqldpwncqszvftbrmjlhg", 4).unwrap());
+        assert_eq!(
+            5,
+            find_marker_v2("bvwbjplbgvbhsrlpgdmjqwftvncz", 4).unwrap()
+        );
+        assert_eq!(
+            6,
+            find_marker_v2("nppdvjthqldpwncqszvftbrmjlhg", 4).unwrap()
+        );
         assert_eq!(
             10,
-            find_marker("nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg", 4).unwrap()
+            find_marker_v2("nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg", 4).unwrap()
         );
         assert_eq!(
             11,
-            find_marker("zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw", 4).unwrap()
+            find_marker_v2("zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw", 4).unwrap()
         );
     }
 
@@ -52,9 +114,15 @@ mod tests {
     fn test_part_two_examples() {
         assert_eq!(
             19,
-            find_marker("mjqjpqmgbljsphdztnvjfqwrcgsmlb", 14).unwrap()
+            find_marker_v2("mjqjpqmgbljsphdztnvjfqwrcgsmlb", 14).unwrap()
         );
-        assert_eq!(23, find_marker("bvwbjplbgvbhsrlpgdmjqwftvncz", 14).unwrap());
-        assert_eq!(23, find_marker("nppdvjthqldpwncqszvftbrmjlhg", 14).unwrap());
+        assert_eq!(
+            23,
+            find_marker_v2("bvwbjplbgvbhsrlpgdmjqwftvncz", 14).unwrap()
+        );
+        assert_eq!(
+            23,
+            find_marker_v2("nppdvjthqldpwncqszvftbrmjlhg", 14).unwrap()
+        );
     }
 }
