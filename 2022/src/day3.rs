@@ -52,4 +52,18 @@ mod tests {
 
         assert_eq!('p' as usize - 'a' as usize + 1, priority);
     }
+
+    #[test]
+    fn test_part_one() {
+        let input = common::network::get_input(2022, 3).unwrap();
+
+        assert_eq!(7826, part_one(&input).unwrap());
+    }
+
+    #[test]
+    fn test_part_two() {
+        let input = common::network::get_input(2022, 3).unwrap();
+
+        assert_eq!(2577, part_two(&input).unwrap());
+    }
 }
