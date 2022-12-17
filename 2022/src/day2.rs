@@ -1,21 +1,65 @@
 use std::str::FromStr;
 
 pub fn part_one(input: &str) -> usize {
-    input
-        .lines()
-        .map(|l| l.parse::<PartOneInput>().expect("bad puzzle input"))
-        .map(|input| input.me.score() + input.me.calculate_result(&input.other).score())
-        .sum()
+    let mut total = 0;
+    for l in input.lines() {
+        total += process_part_one_line(l);
+    }
+    total
+}
+
+fn process_part_one_line(l: &str) -> usize {
+    let mut cs = l.chars();
+    let other_c = cs.next().unwrap();
+    cs.next().unwrap();
+    let me_c = cs.next().unwrap();
+
+    let me = match me_c {
+        'X' => Choice::Rock,
+        'Y' => Choice::Paper,
+        'Z' => Choice::Scissors,
+        _ => unreachable!("expect goo input"),
+    };
+    let other = match other_c {
+        'A' => Choice::Rock,
+        'B' => Choice::Paper,
+        'C' => Choice::Scissors,
+        _ => unreachable!("expect goo input"),
+    };
+
+    me.score() + me.calculate_result(&other).score()
 }
 
 pub fn part_two(input: &str) -> usize {
-    input
-        .lines()
-        .map(|l| l.parse::<PartTwoInput>().expect("bad puzzle input"))
-        .map(|input| {
-            input.other.should_choose(&input.desired_result).score() + input.desired_result.score()
-        })
-        .sum()
+    let mut total = 0;
+    for l in input.lines() {
+        total += process_part_two_line(l);
+    }
+
+    total
+}
+
+fn process_part_two_line(l: &str) -> usize {
+    let mut cs = l.chars();
+    let other_c = cs.next().unwrap();
+    cs.next().unwrap();
+    let desired_result_c = cs.next().unwrap();
+
+    let other = match other_c {
+        'A' => Choice::Rock,
+        'B' => Choice::Paper,
+        'C' => Choice::Scissors,
+        _ => unreachable!("expect good input"),
+    };
+
+    let desired_result = match desired_result_c {
+        'X' => GameResult::Loss,
+        'Y' => GameResult::Tie,
+        'Z' => GameResult::Win,
+        _ => unreachable!("expect good input"),
+    };
+
+    other.should_choose(&desired_result).score() + desired_result.score()
 }
 
 #[derive(Debug)]
@@ -96,59 +140,6 @@ impl Choice {
             GameResult::Loss
         } else {
             GameResult::Tie
-        }
-    }
-}
-
-impl FromStr for Choice {
-    type Err = anyhow::Error;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s {
-            "A" | "X" => Ok(Self::Rock),
-            "B" | "Y" => Ok(Self::Paper),
-            "C" | "Z" => Ok(Self::Scissors),
-            _ => anyhow::bail!("unexpected input"),
-        }
-    }
-}
-
-struct PartOneInput {
-    me: Choice,
-    other: Choice,
-}
-
-impl FromStr for PartOneInput {
-    type Err = anyhow::Error;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        if let Some((other, me)) = s.split_once(" ") {
-            Ok(PartOneInput {
-                other: other.parse::<Choice>()?,
-                me: me.parse::<Choice>()?,
-            })
-        } else {
-            anyhow::bail!("malformed input");
-        }
-    }
-}
-
-struct PartTwoInput {
-    other: Choice,
-    desired_result: GameResult,
-}
-
-impl FromStr for PartTwoInput {
-    type Err = anyhow::Error;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        if let Some((other, desired_result)) = s.split_once(" ") {
-            Ok(PartTwoInput {
-                other: other.parse::<Choice>()?,
-                desired_result: desired_result.parse::<GameResult>()?,
-            })
-        } else {
-            anyhow::bail!("malformed input");
         }
     }
 }
