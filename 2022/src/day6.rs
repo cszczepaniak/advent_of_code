@@ -1,5 +1,3 @@
-use std::{collections::HashSet, hash::Hash};
-
 pub fn part_one(input: &str) -> anyhow::Result<usize> {
     find_marker_v2(input, 4).ok_or(anyhow::anyhow!("didn't find a marker"))
 }
