@@ -1,12 +1,12 @@
 pub fn part_one(input: &str) -> anyhow::Result<usize> {
-    find_marker_v2(input, 4).ok_or(anyhow::anyhow!("didn't find a marker"))
+    find_marker(input, 4).ok_or(anyhow::anyhow!("didn't find a marker"))
 }
 
 pub fn part_two(input: &str) -> anyhow::Result<usize> {
-    find_marker_v2(input, 14).ok_or(anyhow::anyhow!("didn't find a marker"))
+    find_marker(input, 14).ok_or(anyhow::anyhow!("didn't find a marker"))
 }
 
-fn find_marker_v2(input: &str, n: usize) -> Option<usize> {
+fn find_marker(input: &str, n: usize) -> Option<usize> {
     let mut u = Uniquer::new(n);
 
     for (i, c) in input.chars().enumerate() {
@@ -90,21 +90,15 @@ mod tests {
 
     #[test]
     fn test_part_one_examples() {
-        assert_eq!(
-            5,
-            find_marker_v2("bvwbjplbgvbhsrlpgdmjqwftvncz", 4).unwrap()
-        );
-        assert_eq!(
-            6,
-            find_marker_v2("nppdvjthqldpwncqszvftbrmjlhg", 4).unwrap()
-        );
+        assert_eq!(5, find_marker("bvwbjplbgvbhsrlpgdmjqwftvncz", 4).unwrap());
+        assert_eq!(6, find_marker("nppdvjthqldpwncqszvftbrmjlhg", 4).unwrap());
         assert_eq!(
             10,
-            find_marker_v2("nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg", 4).unwrap()
+            find_marker("nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg", 4).unwrap()
         );
         assert_eq!(
             11,
-            find_marker_v2("zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw", 4).unwrap()
+            find_marker("zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw", 4).unwrap()
         );
     }
 
@@ -112,15 +106,9 @@ mod tests {
     fn test_part_two_examples() {
         assert_eq!(
             19,
-            find_marker_v2("mjqjpqmgbljsphdztnvjfqwrcgsmlb", 14).unwrap()
+            find_marker("mjqjpqmgbljsphdztnvjfqwrcgsmlb", 14).unwrap()
         );
-        assert_eq!(
-            23,
-            find_marker_v2("bvwbjplbgvbhsrlpgdmjqwftvncz", 14).unwrap()
-        );
-        assert_eq!(
-            23,
-            find_marker_v2("nppdvjthqldpwncqszvftbrmjlhg", 14).unwrap()
-        );
+        assert_eq!(23, find_marker("bvwbjplbgvbhsrlpgdmjqwftvncz", 14).unwrap());
+        assert_eq!(23, find_marker("nppdvjthqldpwncqszvftbrmjlhg", 14).unwrap());
     }
 }
