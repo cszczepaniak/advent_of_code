@@ -31,7 +31,7 @@ fn merged_ranges_for_row(readings: &Vec<Reading>, row: isize) -> Vec<InclusiveRa
         }
     }
 
-    merge_ranges(ranges.iter().collect())
+    merge_ranges(ranges)
 }
 
 fn count_excluded_points(input: &str, row: isize) -> isize {
@@ -68,18 +68,18 @@ fn count_excluded_points(input: &str, row: isize) -> isize {
     num
 }
 
-fn merge_ranges(mut ranges: Vec<&InclusiveRange>) -> Vec<InclusiveRange> {
+fn merge_ranges(mut ranges: Vec<InclusiveRange>) -> Vec<InclusiveRange> {
     let mut res = Vec::new();
     ranges.sort_by(|a, b| a.start.cmp(&b.start));
 
-    let mut curr = *ranges[0];
+    let mut curr = ranges[0];
     for i in 0..ranges.len() {
-        let merged = curr.merge(*ranges[i]);
+        let merged = curr.merge(ranges[i]);
         if let Some(m) = merged {
             curr = m;
         } else {
             res.push(curr);
-            curr = *ranges[i];
+            curr = ranges[i];
         }
     }
     res.push(curr);
@@ -88,13 +88,8 @@ fn merge_ranges(mut ranges: Vec<&InclusiveRange>) -> Vec<InclusiveRange> {
 
 fn find_distress_beacon(input: &str, max_coord: isize) -> Option<Point> {
     let mut readings = Vec::new();
-    let mut beacons_by_row: HashMap<isize, HashSet<isize>> = HashMap::new();
     for l in input.lines() {
         let (_, r) = parse_reading(l).finish().unwrap();
-        beacons_by_row
-            .entry(r.beacon.y)
-            .or_default()
-            .insert(r.beacon.x);
         readings.push(r);
     }
 
