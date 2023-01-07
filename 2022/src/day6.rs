@@ -1,9 +1,9 @@
-pub fn part_one(input: &str) -> anyhow::Result<usize> {
-    find_marker(input.as_bytes(), 4).ok_or(anyhow::anyhow!("didn't find a marker"))
+pub fn part_one(input: &str) -> Option<usize> {
+    find_marker(input.as_bytes(), 4)
 }
 
-pub fn part_two(input: &str) -> anyhow::Result<usize> {
-    find_marker(input.as_bytes(), 14).ok_or(anyhow::anyhow!("didn't find a marker"))
+pub fn part_two(input: &str) -> Option<usize> {
+    find_marker(input.as_bytes(), 14)
 }
 
 fn find_marker(input: &[u8], length: usize) -> Option<usize> {

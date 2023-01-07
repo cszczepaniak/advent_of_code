@@ -27,6 +27,16 @@ where
     }
 }
 
+impl<'a, R, F> Solution<'a, Option<R>, R, anyhow::Error> for F
+where
+    R: Display,
+    F: Fn(&'a str) -> Option<R>,
+{
+    fn solve(&self, input: &'a str) -> Result<R, anyhow::Error> {
+        self(input).ok_or(anyhow::anyhow!("expected Some, got None"))
+    }
+}
+
 pub fn run_solution<'a, R, E, T, S>(input: &'a str, s: S) -> Result<(), E>
 where
     R: Display,
