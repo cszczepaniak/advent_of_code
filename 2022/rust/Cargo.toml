@@ -24,7 +24,7 @@ name = "bench"
 harness = false
 
 [dependencies.common]
-path = "../common"
+path = "../../common/rust/common"
 
 [features]
 dhat-heap = []
