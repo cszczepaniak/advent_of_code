@@ -8,6 +8,8 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+	"sync"
+	"sync/atomic"
 	"unicode"
 
 	"github.com/cszczepaniak/advent_of_code/2023/go/common"
@@ -53,30 +55,33 @@ func main() {
 }
 
 func part1(input string) int {
-	ch := make(chan int)
-	defer close(ch)
+	var n atomic.Int32
+
+	wg := &sync.WaitGroup{}
+	wg.Add(2)
 
 	// Search for the tens digits and ones digits concurrently.
-	go iterLines(ch, input, iterString, 10)
-	go iterLines(ch, input, iterStringReverse, 1)
+	go func() {
+		defer wg.Done()
+		n.Add(iterLines(input, iterString, 10))
+	}()
 
-	res := 0
-	for range 2 {
-		n := <-ch
-		res += n
-	}
+	go func() {
+		defer wg.Done()
+		n.Add(iterLines(input, iterStringReverse, 1))
+	}()
 
-	return res
+	wg.Wait()
+
+	return int(n.Load())
 }
 
 func iterLines(
-	ch chan<- int,
 	text string,
 	makeIter func(string) common.Seq1[rune],
 	mult int,
-) {
+) int32 {
 	n := 0
-
 	sc := bufio.NewScanner(strings.NewReader(text))
 	for sc.Scan() {
 		for r := range makeIter(sc.Text()) {
@@ -86,8 +91,7 @@ func iterLines(
 			}
 		}
 	}
-
-	ch <- n
+	return int32(n)
 }
 
 // iterString isn't strictly necessary because strings are already iterable, but it makes for a homogenous interface
