@@ -35,3 +35,38 @@ func TestIterLines(t *testing.T) {
 		})
 	}
 }
+
+func TestIterSplitString(t *testing.T) {
+	tests := []struct {
+		desc     string
+		input    string
+		delim    byte
+		expLines []string
+	}{{
+		desc:     `no delim`,
+		input:    `a`,
+		delim:    ':',
+		expLines: []string{`a`},
+	}, {
+		// This probably should include an empty string at the end, but I don't want to do that
+		desc:     `trailing delim`,
+		input:    "a:b:c:",
+		delim:    ':',
+		expLines: []string{`a`, `b`, `c`},
+	}, {
+		desc:     `no trailing delim`,
+		input:    "aa;bb;c;def",
+		delim:    ';',
+		expLines: []string{`aa`, `bb`, `c`, `def`},
+	}}
+
+	for _, tc := range tests {
+		t.Run(tc.desc, func(t *testing.T) {
+			res := make([]string, 0)
+			for s := range IterSplitString(tc.input, tc.delim) {
+				res = append(res, s)
+			}
+			assert.Equal(t, tc.expLines, res)
+		})
+	}
+}
