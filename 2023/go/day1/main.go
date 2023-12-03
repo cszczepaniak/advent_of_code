@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -121,9 +120,8 @@ func iterLines(
 	matcher func(string) int,
 ) int32 {
 	n := 0
-	sc := bufio.NewScanner(strings.NewReader(text))
-	for sc.Scan() {
-		for s := range makeIter(sc.Text()) {
+	for str := range common.IterLines(text) {
+		for s := range makeIter(str) {
 			if dig := matcher(s); dig > 0 {
 				n += mult * dig
 				break
