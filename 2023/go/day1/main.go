@@ -2,11 +2,7 @@ package main
 
 import (
 	"bufio"
-	"context"
-	"fmt"
-	"net/http"
 	"slices"
-	"strconv"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -17,40 +13,13 @@ import (
 )
 
 func main() {
-	day1 := aoc.NewRequest(2023, 1)
-	input, err := aoc.GetInputString(
-		context.Background(),
-		http.DefaultClient,
-		day1.BuildGetInputRequest(),
+	err := aoc.Main(
+		2023, 1,
+		part1, part2,
+		aoc.WithDefaultHTTPClient(),
 	)
 	if err != nil {
 		panic(err)
-	}
-
-	ans1 := part1(input)
-
-	err = aoc.SubmitAnswer(
-		context.Background(),
-		http.DefaultClient,
-		day1.BuildSubmitAnswerRequest(aoc.AnswerPartOne, strconv.Itoa(ans1)),
-	)
-	if err != nil {
-		fmt.Println(err)
-	} else {
-		fmt.Println(`part 1 complete!`)
-	}
-
-	ans2 := part2(input)
-
-	err = aoc.SubmitAnswer(
-		context.Background(),
-		http.DefaultClient,
-		day1.BuildSubmitAnswerRequest(aoc.AnswerPartTwo, strconv.Itoa(ans2)),
-	)
-	if err != nil {
-		fmt.Println(err)
-	} else {
-		fmt.Println(`part 2 complete!`)
 	}
 }
 
