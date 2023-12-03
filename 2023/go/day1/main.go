@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"slices"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -24,6 +23,18 @@ func main() {
 }
 
 func part1(input string) int {
+	return solution(input, matchDigit, matchDigitRight)
+}
+
+func part2(input string) int {
+	return solution(
+		input,
+		matchFirst(matchDigit, matchAlphabeticalDigit(strings.HasPrefix)),
+		matchFirst(matchDigitRight, matchAlphabeticalDigit(strings.HasSuffix)),
+	)
+}
+
+func solution(input string, matchDigitLeft, matchDigitRight func(string) int) int {
 	var n atomic.Int32
 
 	wg := &sync.WaitGroup{}
@@ -32,12 +43,12 @@ func part1(input string) int {
 	// Search for the tens digits and ones digits concurrently.
 	go func() {
 		defer wg.Done()
-		n.Add(iterLines(input, iterString, 10))
+		n.Add(iterLines(input, iterString, 10, matchDigitLeft))
 	}()
 
 	go func() {
 		defer wg.Done()
-		n.Add(iterLines(input, iterStringReverse, 1))
+		n.Add(iterLines(input, iterStringRight, 1, matchDigitRight))
 	}()
 
 	wg.Wait()
@@ -45,17 +56,76 @@ func part1(input string) int {
 	return int(n.Load())
 }
 
+func matchDigit(str string) int {
+	for _, r := range str {
+		if unicode.IsDigit(r) {
+			return int((r - '0'))
+		}
+		break
+	}
+	return 0
+}
+
+func matchDigitRight(str string) int {
+	if len(str) == 0 {
+		return 0
+	}
+
+	rs := []rune(str)
+	r := rs[len(rs)-1]
+	if unicode.IsDigit(r) {
+		return int((r - '0'))
+	}
+
+	return 0
+}
+
+func matchSpecificAlphabeticalDigit(hasPrefix func(string, string) bool, prefix string, num int) func(string) int {
+	return func(s string) int {
+		if hasPrefix(s, prefix) {
+			return num
+		}
+		return 0
+	}
+}
+
+func matchAlphabeticalDigit(hasPrefix func(string, string) bool) func(string) int {
+	return matchFirst(
+		matchSpecificAlphabeticalDigit(hasPrefix, `one`, 1),
+		matchSpecificAlphabeticalDigit(hasPrefix, `two`, 2),
+		matchSpecificAlphabeticalDigit(hasPrefix, `three`, 3),
+		matchSpecificAlphabeticalDigit(hasPrefix, `four`, 4),
+		matchSpecificAlphabeticalDigit(hasPrefix, `five`, 5),
+		matchSpecificAlphabeticalDigit(hasPrefix, `six`, 6),
+		matchSpecificAlphabeticalDigit(hasPrefix, `seven`, 7),
+		matchSpecificAlphabeticalDigit(hasPrefix, `eight`, 8),
+		matchSpecificAlphabeticalDigit(hasPrefix, `nine`, 9),
+	)
+}
+
+func matchFirst(ms ...func(string) int) func(string) int {
+	return func(s string) int {
+		for _, m := range ms {
+			if n := m(s); n > 0 {
+				return n
+			}
+		}
+		return 0
+	}
+}
+
 func iterLines(
 	text string,
-	makeIter func(string) common.Seq1[rune],
+	makeIter func(string) common.Seq1[string],
 	mult int,
+	matcher func(string) int,
 ) int32 {
 	n := 0
 	sc := bufio.NewScanner(strings.NewReader(text))
 	for sc.Scan() {
-		for r := range makeIter(sc.Text()) {
-			if unicode.IsDigit(r) {
-				n += mult * int((r - '0'))
+		for s := range makeIter(sc.Text()) {
+			if dig := matcher(s); dig > 0 {
+				n += mult * dig
 				break
 			}
 		}
@@ -63,94 +133,26 @@ func iterLines(
 	return int32(n)
 }
 
-// iterString isn't strictly necessary because strings are already iterable, but it makes for a homogenous interface
-// with the reverse iterator.
-func iterString(str string) common.Seq1[rune] {
-	return func(yield func(rune) bool) {
-		for _, r := range str {
-			if !yield(r) {
+// iterString produces a sequence of strings that shrink the given string from the left.
+// For "abc", this will produce "abc", "bc", "c", ""
+func iterString(str string) common.Seq1[string] {
+	return func(yield func(string) bool) {
+		for i := range len(str) {
+			if !yield(str[i:]) {
 				return
 			}
 		}
 	}
 }
 
-func iterStringReverse(str string) common.Seq1[rune] {
-	return func(yield func(rune) bool) {
-		rs := []rune(str)
-		for i := len(rs) - 1; i >= 0; i-- {
-			if !yield(rs[i]) {
+// iterString produces a sequence of strings that shrink the given string from the right.
+// For "abc", this will produce "abc", "ab", "a", ""
+func iterStringRight(str string) common.Seq1[string] {
+	return func(yield func(string) bool) {
+		for i := range len(str) {
+			if !yield(str[:len(str)-i]) {
 				return
 			}
 		}
 	}
-}
-
-func part2(input string) int {
-	num := 0
-
-	sc := bufio.NewScanner(strings.NewReader(input))
-	for sc.Scan() {
-		tens := 10 * matchFirstDigit(sc.Text(), digits)
-
-		rs := []rune(sc.Text())
-		slices.Reverse(rs)
-		ones := matchFirstDigit(string(rs), reverseDigits)
-
-		num += tens + ones
-	}
-
-	return num
-}
-
-var digits = map[string]int{
-	`one`:   1,
-	`two`:   2,
-	`three`: 3,
-	`four`:  4,
-	`five`:  5,
-	`six`:   6,
-	`seven`: 7,
-	`eight`: 8,
-	`nine`:  9,
-}
-
-var reverseDigits = map[string]int{
-	`eno`:   1,
-	`owt`:   2,
-	`eerht`: 3,
-	`ruof`:  4,
-	`evif`:  5,
-	`xis`:   6,
-	`neves`: 7,
-	`thgie`: 8,
-	`enin`:  9,
-}
-
-func matchFirstDigit(str string, digits map[string]int) int {
-	for i := 0; i < len(str); i++ {
-		if unicode.IsDigit(rune(str[i])) {
-			return int(rune(str[i]) - '0')
-		}
-		for d, num := range digits {
-			n, ok := tryToMatchWordAsDigit(str[i:], d, num)
-			if ok {
-				return n
-			}
-		}
-	}
-
-	panic(`malformed input!`)
-}
-
-func tryToMatchWordAsDigit(str, digit string, ifMatch int) (int, bool) {
-	if digit == `` {
-		return ifMatch, true
-	}
-
-	if str[0] == digit[0] {
-		return tryToMatchWordAsDigit(str[1:], digit[1:], ifMatch)
-	}
-
-	return 0, false
 }
