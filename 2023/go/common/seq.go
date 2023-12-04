@@ -17,3 +17,15 @@ func CollectSized[T any](seq Seq1[T], sz int) []T {
 	}
 	return res
 }
+
+type integer interface {
+	~int8 | ~int16 | ~int32 | ~int64 | int | ~uint8 | ~uint16 | ~uint32 | ~uint64 | uint
+}
+
+func Sum[T integer](seq Seq1[T]) T {
+	var sum T
+	for val := range seq {
+		sum += val
+	}
+	return sum
+}
