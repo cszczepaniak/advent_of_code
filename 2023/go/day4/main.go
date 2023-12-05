@@ -41,7 +41,6 @@ func part1(input string) int {
 }
 
 type card struct {
-	id      int
 	winners common.Set[int]
 	mine    []int
 }
@@ -60,12 +59,6 @@ func parseCard(input string) (card, error) {
 	colon := strings.Index(input, `:`)
 	if colon < 0 {
 		return card{}, errors.New(`missing colon in card`)
-	}
-
-	idStr := strings.TrimSpace(strings.TrimPrefix(strings.TrimSpace(input[:colon]), `Card `))
-	id, err := strconv.Atoi(idStr)
-	if err != nil {
-		return card{}, err
 	}
 
 	input = input[colon+1:]
@@ -97,7 +90,6 @@ func parseCard(input string) (card, error) {
 	}
 
 	return card{
-		id:      id,
 		winners: winnerSet,
 		mine:    myNums,
 	}, nil
