@@ -99,9 +99,7 @@ func parseCard(input string) (card, error) {
 
 	for str := range numberFields(mine) {
 		code := codeFromStr(str)
-		if c.winnersSet[code] > 0 {
-			c.numWinningNumbers++
-		}
+		c.numWinningNumbers += c.winnersSet[code]
 	}
 
 	return c, nil

@@ -80,4 +80,10 @@ BenchmarkPart2/sample_input
 BenchmarkPart2/sample_input-16         	  513525	      2322 ns/op	     120 B/op	       4 allocs/op
 BenchmarkPart2/real_input
 BenchmarkPart2/real_input-16           	   10000	    100461 ns/op	    4096 B/op	      10 allocs/op
+
+REMOVE >1 BRANCH AND JUST +=
+BenchmarkPart2/sample_input
+BenchmarkPart2/sample_input-16         	  514500	      2303 ns/op	     120 B/op	       4 allocs/op
+BenchmarkPart2/real_input
+BenchmarkPart2/real_input-16           	   12408	     96905 ns/op	    4096 B/op	      10 allocs/op
 */
