@@ -109,27 +109,42 @@ type cardWithCopies struct {
 }
 
 func part2(input string) int {
+	n := 0
 	var cards []cardWithCopies
 
-	for line := range common.IterLines(input) {
+	for i, line := range common.Enumerate(common.IterLines(input)) {
 		card, err := parseCard(line)
 		if err != nil {
 			panic(`malformed card: ` + err.Error())
 		}
-		cards = append(cards, cardWithCopies{
-			c:       card,
-			nCopies: 1,
-		})
-	}
 
-	// TODO probably could do this with less looping... it's _really really_ slow.
-	n := 0
-	for i, c := range cards {
-		n += c.nCopies
-		nWinners := c.c.countWinningNumbers()
+		if i < len(cards) {
+			// If this card is already in the list,  we need to set the card itself. Also, we need to increment the
+			// count to include this particular card (any existing count is just due to copies being added).
+			cards[i].c = card
+			cards[i].nCopies++
+		} else {
+			// If this card hasn't been added to the list yet, add it.
+			cards = append(cards, cardWithCopies{
+				c:       card,
+				nCopies: 1,
+			})
+		}
+
+		n += cards[i].nCopies
+
+		nWinners := card.countWinningNumbers()
 		for j := range nWinners {
-			cards[i+j+1].nCopies += c.nCopies
+			idx := i + j + 1
+			if idx < len(cards) {
+				cards[idx].nCopies += cards[i].nCopies
+			} else {
+				cards = append(cards, cardWithCopies{
+					nCopies: cards[i].nCopies,
+				})
+			}
 		}
 	}
+
 	return n
 }

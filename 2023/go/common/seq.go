@@ -29,3 +29,15 @@ func Sum[T integer](seq Seq1[T]) T {
 	}
 	return sum
 }
+
+func Enumerate[T any](seq Seq1[T]) Seq2[int, T] {
+	return func(yield func(int, T) bool) {
+		i := 0
+		for val := range seq {
+			if !yield(i, val) {
+				return
+			}
+			i++
+		}
+	}
+}

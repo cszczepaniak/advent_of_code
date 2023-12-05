@@ -51,9 +51,15 @@ BenchmarkPart2/sample_input-16         	  227347	      5213 ns/op	    4832 B/op	
 BenchmarkPart2/real_input
 BenchmarkPart2/real_input-16           	       1	3839726209 ns/op	3356037608 B/op	    3561 allocs/op
 
-ONLY LOOPING THROUGH ONCE:
+ONLY LOOPING THROUGH ONCE AFTER PARSING:
 BenchmarkPart2/sample_input
 BenchmarkPart2/sample_input-16         	  415584	      2827 ns/op	    3120 B/op	      34 allocs/op
 BenchmarkPart2/real_input
 BenchmarkPart2/real_input-16           	    5247	    219883 ns/op	  233054 B/op	    1037 allocs/op
+
+ONLY LOOPING THROUGH ONCE INCLUDING PARSING:
+BenchmarkPart2/sample_input
+BenchmarkPart2/sample_input-16         	  401860	      2921 ns/op	    3120 B/op	      34 allocs/op
+BenchmarkPart2/real_input
+BenchmarkPart2/real_input-16           	    5102	    228390 ns/op	  233064 B/op	    1037 allocs/op
 */
