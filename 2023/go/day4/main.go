@@ -103,33 +103,32 @@ func parseCard(input string) (card, error) {
 	}, nil
 }
 
-func part2(input string) int {
-	n := 0
-	cardsByID := make(map[int][]card)
-	appendCard := func(c card) {
-		n++
-		cardsByID[c.id] = append(cardsByID[c.id], c)
-	}
+type cardWithCopies struct {
+	c       card
+	nCopies int
+}
 
-	maxID := 1
+func part2(input string) int {
+	var cards []cardWithCopies
+
 	for line := range common.IterLines(input) {
 		card, err := parseCard(line)
 		if err != nil {
 			panic(`malformed card: ` + err.Error())
 		}
-		maxID = max(maxID, card.id)
-		appendCard(card)
+		cards = append(cards, cardWithCopies{
+			c:       card,
+			nCopies: 1,
+		})
 	}
 
 	// TODO probably could do this with less looping... it's _really really_ slow.
-	for i := 1; i <= maxID; i++ {
-		for _, c := range cardsByID[i] {
-			nWinners := c.countWinningNumbers()
-			for j := range nWinners {
-				// Assumption: there will be at least one of each ID
-				winCopyOf := cardsByID[c.id+j+1][0]
-				appendCard(winCopyOf)
-			}
+	n := 0
+	for i, c := range cards {
+		n += c.nCopies
+		nWinners := c.c.countWinningNumbers()
+		for j := range nWinners {
+			cards[i+j+1].nCopies += c.nCopies
 		}
 	}
 	return n
