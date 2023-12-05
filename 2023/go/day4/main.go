@@ -43,9 +43,6 @@ func part1(input string) int {
 type card struct {
 	winnersSet        [256]int
 	numWinningNumbers int
-
-	winners common.Set[int]
-	mine    []int
 }
 
 func codeFromStr(s string) int {
