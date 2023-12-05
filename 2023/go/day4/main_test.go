@@ -62,4 +62,10 @@ BenchmarkPart2/sample_input
 BenchmarkPart2/sample_input-16         	  401860	      2921 ns/op	    3120 B/op	      34 allocs/op
 BenchmarkPart2/real_input
 BenchmarkPart2/real_input-16           	    5102	    228390 ns/op	  233064 B/op	    1037 allocs/op
+
+ONLY KEEPING TRACK OF NUMBER OF COPIES, NOT CARDS:
+BenchmarkPart2/sample_input
+BenchmarkPart2/sample_input-16         	  429928	      2760 ns/op	    2520 B/op	      34 allocs/op
+BenchmarkPart2/real_input
+BenchmarkPart2/real_input-16           	    5458	    216354 ns/op	  205071 B/op	    1037 allocs/op
 */

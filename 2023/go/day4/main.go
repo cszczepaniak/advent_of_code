@@ -103,14 +103,9 @@ func parseCard(input string) (card, error) {
 	}, nil
 }
 
-type cardWithCopies struct {
-	c       card
-	nCopies int
-}
-
 func part2(input string) int {
 	n := 0
-	var cards []cardWithCopies
+	var copies []int
 
 	for i, line := range common.Enumerate(common.IterLines(input)) {
 		card, err := parseCard(line)
@@ -118,30 +113,24 @@ func part2(input string) int {
 			panic(`malformed card: ` + err.Error())
 		}
 
-		if i < len(cards) {
+		if i < len(copies) {
 			// If this card is already in the list,  we need to set the card itself. Also, we need to increment the
 			// count to include this particular card (any existing count is just due to copies being added).
-			cards[i].c = card
-			cards[i].nCopies++
+			copies[i] = copies[i] + 1
 		} else {
 			// If this card hasn't been added to the list yet, add it.
-			cards = append(cards, cardWithCopies{
-				c:       card,
-				nCopies: 1,
-			})
+			copies = append(copies, 1)
 		}
 
-		n += cards[i].nCopies
+		n += copies[i]
 
 		nWinners := card.countWinningNumbers()
 		for j := range nWinners {
 			idx := i + j + 1
-			if idx < len(cards) {
-				cards[idx].nCopies += cards[i].nCopies
+			if idx < len(copies) {
+				copies[idx] = copies[idx] + copies[i]
 			} else {
-				cards = append(cards, cardWithCopies{
-					nCopies: cards[i].nCopies,
-				})
+				copies = append(copies, copies[i])
 			}
 		}
 	}
