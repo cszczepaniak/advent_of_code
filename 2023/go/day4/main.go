@@ -31,7 +31,7 @@ func part1(input string) int {
 			panic(`error parsing card: ` + err.Error())
 		}
 
-		numWinners := card.countWinningNumbers()
+		numWinners := card.numWinningNumbers
 		if numWinners > 0 {
 			totalScore += 1 << (numWinners - 1)
 		}
@@ -57,10 +57,6 @@ func codeFromStr(s string) int {
 	default:
 		panic(s + ` had len ` + strconv.Itoa(len(s)))
 	}
-}
-
-func (c card) countWinningNumbers() int {
-	return c.numWinningNumbers
 }
 
 func parseCard(input string) (card, error) {
@@ -119,7 +115,7 @@ func part2(input string) int {
 
 		n += copies[i]
 
-		nWinners := card.countWinningNumbers()
+		nWinners := card.numWinningNumbers
 		for j := range nWinners {
 			idx := i + j + 1
 			if idx < len(copies) {
