@@ -41,18 +41,26 @@ func part1(input string) int {
 }
 
 type card struct {
+	winnersSet        [256]int
+	numWinningNumbers int
+
 	winners common.Set[int]
 	mine    []int
 }
 
-func (c card) countWinningNumbers() int {
-	n := 0
-	for _, num := range c.mine {
-		if c.winners.Contains(num) {
-			n++
-		}
+func codeFromStr(s string) int {
+	switch len(s) {
+	case 1:
+		return int(s[0] - '0')
+	case 2:
+		return int(s[0]-'0')*10 + int(s[1]-'0')
+	default:
+		panic(s + ` had len ` + strconv.Itoa(len(s)))
 	}
-	return n
+}
+
+func (c card) countWinningNumbers() int {
+	return c.numWinningNumbers
 }
 
 func parseCard(input string) (card, error) {
@@ -70,29 +78,24 @@ func parseCard(input string) (card, error) {
 	// TODO strings.Fields could be replaced with an iterator to save the allocation.
 
 	winnerStrs := strings.Fields(winners)
-	winnerSet := common.NewSetWithCapacity[int](len(winnerStrs))
+	winnerSet := [256]int{}
 	for _, str := range winnerStrs {
-		n, err := strconv.Atoi(str)
-		if err != nil {
-			return card{}, err
-		}
-		winnerSet.Insert(n)
+		winnerSet[codeFromStr(str)] = 1
+	}
+
+	c := card{
+		winnersSet: winnerSet,
 	}
 
 	myStrs := strings.Fields(mine)
-	myNums := make([]int, 0, len(myStrs))
 	for _, str := range myStrs {
-		n, err := strconv.Atoi(str)
-		if err != nil {
-			return card{}, err
+		code := codeFromStr(str)
+		if c.winnersSet[code] > 0 {
+			c.numWinningNumbers++
 		}
-		myNums = append(myNums, n)
 	}
 
-	return card{
-		winners: winnerSet,
-		mine:    myNums,
-	}, nil
+	return c, nil
 }
 
 func part2(input string) int {

@@ -68,4 +68,10 @@ BenchmarkPart2/sample_input
 BenchmarkPart2/sample_input-16         	  429928	      2760 ns/op	    2520 B/op	      34 allocs/op
 BenchmarkPart2/real_input
 BenchmarkPart2/real_input-16           	    5458	    216354 ns/op	  205071 B/op	    1037 allocs/op
+
+USING AN ARRAY INSTEAD OF A SET + COUNTING WINNERS AT PARSE TIME:
+BenchmarkPart2/sample_input
+BenchmarkPart2/sample_input-16         	  409554	      2837 ns/op	    1368 B/op	      16 allocs/op
+BenchmarkPart2/real_input
+BenchmarkPart2/real_input-16           	    8456	    136304 ns/op	  120448 B/op	     414 allocs/op
 */
