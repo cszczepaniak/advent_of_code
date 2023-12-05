@@ -59,6 +59,23 @@ func codeFromStr(s string) int {
 	}
 }
 
+func numberFields(str string) common.Seq1[string] {
+	return func(yield func(string) bool) {
+		for i := 0; i < len(str); i++ {
+			if str[i] == ' ' {
+				continue
+			}
+			start := i
+			for i < len(str) && str[i] != ' ' {
+				i++
+			}
+			if !yield(str[start:i]) {
+				return
+			}
+		}
+	}
+}
+
 func parseCard(input string) (card, error) {
 	colon := strings.Index(input, `:`)
 	if colon < 0 {
@@ -71,11 +88,8 @@ func parseCard(input string) (card, error) {
 		return card{}, errors.New(`no pipe separator in card`)
 	}
 
-	// TODO strings.Fields could be replaced with an iterator to save the allocation.
-
-	winnerStrs := strings.Fields(winners)
 	winnerSet := [256]int{}
-	for _, str := range winnerStrs {
+	for str := range numberFields(winners) {
 		winnerSet[codeFromStr(str)] = 1
 	}
 
@@ -83,8 +97,7 @@ func parseCard(input string) (card, error) {
 		winnersSet: winnerSet,
 	}
 
-	myStrs := strings.Fields(mine)
-	for _, str := range myStrs {
+	for str := range numberFields(mine) {
 		code := codeFromStr(str)
 		if c.winnersSet[code] > 0 {
 			c.numWinningNumbers++

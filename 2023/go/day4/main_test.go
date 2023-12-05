@@ -74,4 +74,10 @@ BenchmarkPart2/sample_input
 BenchmarkPart2/sample_input-16         	  409554	      2837 ns/op	    1368 B/op	      16 allocs/op
 BenchmarkPart2/real_input
 BenchmarkPart2/real_input-16           	    8456	    136304 ns/op	  120448 B/op	     414 allocs/op
+
+REMOVING ALLOCATION OF strings.Fields
+BenchmarkPart2/sample_input
+BenchmarkPart2/sample_input-16         	  513525	      2322 ns/op	     120 B/op	       4 allocs/op
+BenchmarkPart2/real_input
+BenchmarkPart2/real_input-16           	   10000	    100461 ns/op	    4096 B/op	      10 allocs/op
 */
