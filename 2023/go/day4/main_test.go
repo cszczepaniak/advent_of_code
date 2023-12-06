@@ -116,4 +116,10 @@ BenchmarkPart2/sample_input
 BenchmarkPart2/sample_input-16         	 2018977	       578.7 ns/op	       0 B/op	       0 allocs/op
 BenchmarkPart2/real_input
 BenchmarkPart2/real_input-16           	   29482	     36993 ns/op	       8 B/op	       1 allocs/op
+
+GETTING RID OF CARD ENTIRELY
+BenchmarkPart2/sample_input
+BenchmarkPart2/sample_input-16         	 2322807	       528.7 ns/op	       0 B/op	       0 allocs/op
+BenchmarkPart2/real_input
+BenchmarkPart2/real_input-16           	   40796	     29621 ns/op	       8 B/op	       1 allocs/op
 */

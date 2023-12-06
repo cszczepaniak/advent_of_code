@@ -19,19 +19,13 @@ func main() {
 func part1(input string) int {
 	totalScore := 0
 	for line := range common.IterLines(input) {
-		card, _ := parseCard(line)
-		numWinners := card.numWinningNumbers
+		numWinners, _ := parseCard(line)
 		if numWinners > 0 {
 			totalScore += 1 << (numWinners - 1)
 		}
 	}
 
 	return totalScore
-}
-
-type card struct {
-	winnersSet        common.ByteSet
-	numWinningNumbers int
 }
 
 func codeFromStr(s string) byte {
@@ -65,7 +59,7 @@ func numberFields(str string) common.Seq1[string] {
 // A card looks like this:
 // Card 1: 41 48 83 86 17 | 83 86  6 31 17  9 48 53
 
-func parseCard(input string) (card, string) {
+func parseCard(input string) (int, string) {
 	for input[0] != ':' {
 		input = input[1:]
 	}
@@ -88,20 +82,18 @@ func parseCard(input string) (card, string) {
 		input = discardSpaces(input)
 	}
 
-	c := card{
-		winnersSet: winnerSet,
-	}
+	nWinners := 0
 
 	for len(input) > 0 && input[0] != '\n' {
 		num, input = parseNumber(input)
-		if c.winnersSet.Contains(num) {
-			c.numWinningNumbers++
+		if winnerSet.Contains(num) {
+			nWinners++
 		}
 
 		input = discardSpaces(input)
 	}
 
-	return c, input
+	return nWinners, input
 }
 
 func discardSpaces(str string) string {
@@ -126,10 +118,10 @@ func part2(input string) int {
 	nextIdx := 0
 	var copies [256]int
 
-	var card card
+	var nWinners int
 	i := 0
 	for {
-		card, input = parseCard(input)
+		nWinners, input = parseCard(input)
 		if i < nextIdx {
 			// If this card is already in the list,  we need to set the card itself. Also, we need to increment the
 			// count to include this particular card (any existing count is just due to copies being added).
@@ -142,7 +134,6 @@ func part2(input string) int {
 
 		n += copies[i]
 
-		nWinners := card.numWinningNumbers
 		for j := 0; j < nWinners; j++ {
 			idx := i + j + 1
 			if idx < nextIdx {
