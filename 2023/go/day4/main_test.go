@@ -92,4 +92,10 @@ BenchmarkPart2/sample_input
 BenchmarkPart2/sample_input-16         	 1000000	      1070 ns/op	     120 B/op	       4 allocs/op
 BenchmarkPart2/real_input
 BenchmarkPart2/real_input-16           	   15439	     65391 ns/op	    4096 B/op	      10 allocs/op
+
+OPTIMIZING PARSING
+BenchmarkPart2/sample_input
+BenchmarkPart2/sample_input-16         	 1313506	       897.0 ns/op	       0 B/op	       0 allocs/op
+BenchmarkPart2/real_input
+BenchmarkPart2/real_input-16           	   18232	     58326 ns/op	       8 B/op	       1 allocs/op
 */

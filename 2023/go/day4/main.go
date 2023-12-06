@@ -1,9 +1,7 @@
 package main
 
 import (
-	"errors"
 	"strconv"
-	"strings"
 
 	"github.com/cszczepaniak/advent_of_code/2023/go/common"
 	"github.com/cszczepaniak/go-aoc/aoc"
@@ -19,9 +17,6 @@ func main() {
 		panic(err)
 	}
 }
-
-// A card looks like this:
-// Card 1: 41 48 83 86 17 | 83 86  6 31 17  9 48 53
 
 func part1(input string) int {
 	totalScore := 0
@@ -73,39 +68,69 @@ func numberFields(str string) common.Seq1[string] {
 	}
 }
 
-func parseCard(input string) (card, error) {
-	colon := strings.Index(input, `:`)
-	if colon < 0 {
-		return card{}, errors.New(`missing colon in card`)
-	}
+// A card looks like this:
+// Card 1: 41 48 83 86 17 | 83 86  6 31 17  9 48 53
 
-	input = input[colon+1:]
-	winners, mine, ok := strings.Cut(input, ` | `)
-	if !ok {
-		return card{}, errors.New(`no pipe separator in card`)
+func parseCard(input string) (card, error) {
+	for input[0] != ':' {
+		input = input[1:]
 	}
+	input = input[1:]
+
+	input = discardSpaces(input)
 
 	winnerSet := common.NewByteSet()
-	for str := range numberFields(winners) {
-		winnerSet.Insert(codeFromStr(str))
+	var num byte
+	for {
+		if input[0] == '|' {
+			input = input[1:]
+			input = discardSpaces(input)
+			break
+		}
+
+		num, input = parseNumber(input)
+		winnerSet.Insert(num)
+
+		input = discardSpaces(input)
 	}
 
 	c := card{
 		winnersSet: winnerSet,
 	}
 
-	for str := range numberFields(mine) {
-		if c.winnersSet.Contains(codeFromStr(str)) {
-			c.numWinningNumbers += 1
+	for len(input) > 0 {
+		num, input = parseNumber(input)
+		if c.winnersSet.Contains(num) {
+			c.numWinningNumbers++
 		}
+
+		input = discardSpaces(input)
 	}
 
 	return c, nil
 }
 
+func discardSpaces(str string) string {
+	for len(str) > 0 && str[0] == ' ' {
+		str = str[1:]
+	}
+	return str
+}
+
+func parseNumber(str string) (byte, string) {
+	l := 0
+	for l < len(str) && str[l] != ' ' {
+		l++
+	}
+
+	return codeFromStr(str[:l]), str[l:]
+}
+
 func part2(input string) int {
 	n := 0
-	var copies []int
+
+	nextIdx := 0
+	var copies [256]int
 
 	for i, line := range common.Enumerate(common.IterLines(input)) {
 		card, err := parseCard(line)
@@ -113,13 +138,14 @@ func part2(input string) int {
 			panic(`malformed card: ` + err.Error())
 		}
 
-		if i < len(copies) {
+		if i < nextIdx {
 			// If this card is already in the list,  we need to set the card itself. Also, we need to increment the
 			// count to include this particular card (any existing count is just due to copies being added).
 			copies[i] = copies[i] + 1
 		} else {
 			// If this card hasn't been added to the list yet, add it.
-			copies = append(copies, 1)
+			copies[nextIdx] = 1
+			nextIdx++
 		}
 
 		n += copies[i]
@@ -127,10 +153,11 @@ func part2(input string) int {
 		nWinners := card.numWinningNumbers
 		for j := range nWinners {
 			idx := i + j + 1
-			if idx < len(copies) {
+			if idx < nextIdx {
 				copies[idx] = copies[idx] + copies[i]
 			} else {
-				copies = append(copies, copies[i])
+				copies[nextIdx] = copies[i]
+				nextIdx++
 			}
 		}
 	}
