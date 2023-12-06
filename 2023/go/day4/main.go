@@ -41,16 +41,16 @@ func part1(input string) int {
 }
 
 type card struct {
-	winnersSet        [256]int
+	winnersSet        common.ByteSet
 	numWinningNumbers int
 }
 
-func codeFromStr(s string) int {
+func codeFromStr(s string) byte {
 	switch len(s) {
 	case 1:
-		return int(s[0] - '0')
+		return byte(s[0] - '0')
 	case 2:
-		return int(s[0]-'0')*10 + int(s[1]-'0')
+		return byte(s[0]-'0')*10 + byte(s[1]-'0')
 	default:
 		panic(s + ` had len ` + strconv.Itoa(len(s)))
 	}
@@ -85,9 +85,9 @@ func parseCard(input string) (card, error) {
 		return card{}, errors.New(`no pipe separator in card`)
 	}
 
-	winnerSet := [256]int{}
+	winnerSet := common.NewByteSet()
 	for str := range numberFields(winners) {
-		winnerSet[codeFromStr(str)] = 1
+		winnerSet.Insert(codeFromStr(str))
 	}
 
 	c := card{
@@ -95,8 +95,9 @@ func parseCard(input string) (card, error) {
 	}
 
 	for str := range numberFields(mine) {
-		code := codeFromStr(str)
-		c.numWinningNumbers += c.winnersSet[code]
+		if c.winnersSet.Contains(codeFromStr(str)) {
+			c.numWinningNumbers += 1
+		}
 	}
 
 	return c, nil

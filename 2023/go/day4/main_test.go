@@ -86,4 +86,10 @@ BenchmarkPart2/sample_input
 BenchmarkPart2/sample_input-16         	  514500	      2303 ns/op	     120 B/op	       4 allocs/op
 BenchmarkPart2/real_input
 BenchmarkPart2/real_input-16           	   12408	     96905 ns/op	    4096 B/op	      10 allocs/op
+
+USING THE "BYTE SET"
+BenchmarkPart2/sample_input
+BenchmarkPart2/sample_input-16         	 1000000	      1070 ns/op	     120 B/op	       4 allocs/op
+BenchmarkPart2/real_input
+BenchmarkPart2/real_input-16           	   15439	     65391 ns/op	    4096 B/op	      10 allocs/op
 */
