@@ -71,7 +71,7 @@ func numberFields(str string) common.Seq1[string] {
 // A card looks like this:
 // Card 1: 41 48 83 86 17 | 83 86  6 31 17  9 48 53
 
-func parseCard(input string) (card, error) {
+func parseCard(input string) card {
 	for input[0] != ':' {
 		input = input[1:]
 	}
@@ -107,7 +107,7 @@ func parseCard(input string) (card, error) {
 		input = discardSpaces(input)
 	}
 
-	return c, nil
+	return c
 }
 
 func discardSpaces(str string) string {
