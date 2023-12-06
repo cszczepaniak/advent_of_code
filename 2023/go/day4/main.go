@@ -1,8 +1,6 @@
 package main
 
 import (
-	"strconv"
-
 	"github.com/cszczepaniak/advent_of_code/2023/go/common"
 	"github.com/cszczepaniak/go-aoc/aoc"
 )
@@ -21,11 +19,7 @@ func main() {
 func part1(input string) int {
 	totalScore := 0
 	for line := range common.IterLines(input) {
-		card, err := parseCard(line)
-		if err != nil {
-			panic(`error parsing card: ` + err.Error())
-		}
-
+		card, _ := parseCard(line)
 		numWinners := card.numWinningNumbers
 		if numWinners > 0 {
 			totalScore += 1 << (numWinners - 1)
@@ -46,9 +40,9 @@ func codeFromStr(s string) byte {
 		return byte(s[0] - '0')
 	case 2:
 		return byte(s[0]-'0')*10 + byte(s[1]-'0')
-	default:
-		panic(s + ` had len ` + strconv.Itoa(len(s)))
 	}
+
+	panic(`unexpected str len`)
 }
 
 func numberFields(str string) common.Seq1[string] {
@@ -71,7 +65,7 @@ func numberFields(str string) common.Seq1[string] {
 // A card looks like this:
 // Card 1: 41 48 83 86 17 | 83 86  6 31 17  9 48 53
 
-func parseCard(input string) card {
+func parseCard(input string) (card, string) {
 	for input[0] != ':' {
 		input = input[1:]
 	}
@@ -98,7 +92,7 @@ func parseCard(input string) card {
 		winnersSet: winnerSet,
 	}
 
-	for len(input) > 0 {
+	for len(input) > 0 && input[0] != '\n' {
 		num, input = parseNumber(input)
 		if c.winnersSet.Contains(num) {
 			c.numWinningNumbers++
@@ -107,7 +101,7 @@ func parseCard(input string) card {
 		input = discardSpaces(input)
 	}
 
-	return c
+	return c, input
 }
 
 func discardSpaces(str string) string {
@@ -119,7 +113,7 @@ func discardSpaces(str string) string {
 
 func parseNumber(str string) (byte, string) {
 	l := 0
-	for l < len(str) && str[l] != ' ' {
+	for l < len(str) && str[l] != ' ' && str[l] != '\n' {
 		l++
 	}
 
@@ -132,12 +126,10 @@ func part2(input string) int {
 	nextIdx := 0
 	var copies [256]int
 
-	for i, line := range common.Enumerate(common.IterLines(input)) {
-		card, err := parseCard(line)
-		if err != nil {
-			panic(`malformed card: ` + err.Error())
-		}
-
+	var card card
+	i := 0
+	for {
+		card, input = parseCard(input)
 		if i < nextIdx {
 			// If this card is already in the list,  we need to set the card itself. Also, we need to increment the
 			// count to include this particular card (any existing count is just due to copies being added).
@@ -159,6 +151,13 @@ func part2(input string) int {
 				copies[nextIdx] = copies[i]
 				nextIdx++
 			}
+		}
+
+		if len(input) > 1 {
+			input = input[1:]
+			i++
+		} else {
+			break
 		}
 	}
 
