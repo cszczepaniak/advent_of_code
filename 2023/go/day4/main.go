@@ -143,7 +143,7 @@ func part2(input string) int {
 		n += copies[i]
 
 		nWinners := card.numWinningNumbers
-		for j := range nWinners {
+		for j := 0; j < nWinners; j++ {
 			idx := i + j + 1
 			if idx < nextIdx {
 				copies[idx] = copies[idx] + copies[i]

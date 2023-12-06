@@ -110,4 +110,10 @@ BenchmarkPart2/sample_input
 BenchmarkPart2/sample_input-16         	 1959708	       617.0 ns/op	       0 B/op	       0 allocs/op
 BenchmarkPart2/real_input
 BenchmarkPart2/real_input-16           	   30994	     38794 ns/op	       8 B/op	       1 allocs/op
+
+REMOVE RANGE OVER INT
+BenchmarkPart2/sample_input
+BenchmarkPart2/sample_input-16         	 2018977	       578.7 ns/op	       0 B/op	       0 allocs/op
+BenchmarkPart2/real_input
+BenchmarkPart2/real_input-16           	   29482	     36993 ns/op	       8 B/op	       1 allocs/op
 */
