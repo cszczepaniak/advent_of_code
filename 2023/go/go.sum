@@ -1,5 +1,9 @@
 github.com/cszczepaniak/go-aoc v0.0.0-20231203182300-cc0898a64c3e h1:jENak2931G+DY/0xAcQJjmhIMxwvuluKYodvC/Kf/bM=
 github.com/cszczepaniak/go-aoc v0.0.0-20231203182300-cc0898a64c3e/go.mod h1:wA503eY+MTimnHRuFgr+AEzrovvtuqv2tSm/C71C6RE=
+github.com/cszczepaniak/go-aoc v0.0.0-20231209180720-074e2c3a85b5 h1:DuQAgHmnM2aZYWS1HxRa9T6VDG9ydMo7zegt9XdGwDs=
+github.com/cszczepaniak/go-aoc v0.0.0-20231209180720-074e2c3a85b5/go.mod h1:wA503eY+MTimnHRuFgr+AEzrovvtuqv2tSm/C71C6RE=
+github.com/cszczepaniak/go-aoc v0.0.0-20231209225422-68a3d74ffa73 h1:DNCVB0OM3aZIqdIKyQyyqzalkXIIeIgm/Qq1bWjgkjk=
+github.com/cszczepaniak/go-aoc v0.0.0-20231209225422-68a3d74ffa73/go.mod h1:wA503eY+MTimnHRuFgr+AEzrovvtuqv2tSm/C71C6RE=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=

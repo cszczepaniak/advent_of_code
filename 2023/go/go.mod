@@ -3,7 +3,7 @@ module github.com/cszczepaniak/advent_of_code/2023/go
 go 1.21.0
 
 require (
-	github.com/cszczepaniak/go-aoc v0.0.0-20231203182300-cc0898a64c3e
+	github.com/cszczepaniak/go-aoc v0.0.0-20231209225422-68a3d74ffa73
 	github.com/stretchr/testify v1.8.4
 )
 
