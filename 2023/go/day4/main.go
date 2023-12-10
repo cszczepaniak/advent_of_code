@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/cszczepaniak/advent_of_code/2023/go/common"
+	"github.com/cszczepaniak/advent_of_code/2023/go/common/parsing"
 	"github.com/cszczepaniak/go-aoc/aoc"
 )
 
@@ -65,21 +66,21 @@ func parseCard(input string) (int, string) {
 	}
 	input = input[1:]
 
-	input = discardSpaces(input)
+	input = parsing.DiscardSpaces(input)
 
 	winnerSet := common.NewByteSet()
 	var num byte
 	for {
 		if input[0] == '|' {
 			input = input[1:]
-			input = discardSpaces(input)
+			input = parsing.DiscardSpaces(input)
 			break
 		}
 
 		num, input = parseNumber(input)
 		winnerSet.Insert(num)
 
-		input = discardSpaces(input)
+		input = parsing.DiscardSpaces(input)
 	}
 
 	nWinners := 0
@@ -90,17 +91,10 @@ func parseCard(input string) (int, string) {
 			nWinners++
 		}
 
-		input = discardSpaces(input)
+		input = parsing.DiscardSpaces(input)
 	}
 
 	return nWinners, input
-}
-
-func discardSpaces(str string) string {
-	for len(str) > 0 && str[0] == ' ' {
-		str = str[1:]
-	}
-	return str
 }
 
 func parseNumber(str string) (byte, string) {
