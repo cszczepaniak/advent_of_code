@@ -32,3 +32,23 @@ func ParseNumber(str string) (int, string, error) {
 
 	return i, str[l:], nil
 }
+
+func ParseSpaceSeparatedNumbers(str string) ([]int, string, error) {
+	str = DiscardSpaces(str)
+
+	var n int
+	var err error
+	var nums []int
+
+	for len(str) > 0 && str[0] != '\n' {
+		n, str, err = ParseNumber(str)
+		if err != nil {
+			return nil, ``, err
+		}
+		str = DiscardSpaces(str)
+
+		nums = append(nums, n)
+	}
+
+	return nums, str, nil
+}
