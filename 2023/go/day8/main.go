@@ -31,42 +31,41 @@ ZZZ = (ZZZ, ZZZ)
 */
 
 func part1(input string) int {
-	instructions, input := parsing.TakeUntilChar(input, '\n')
+	inst, input := parseInstructions(input)
 	input = parsing.DiscardLine(input)
-	input = parsing.DiscardLine(input)
-
-	instructionPtr := 0
-	nextInstruction := func() byte {
-		b := instructions[instructionPtr%len(instructions)]
-		instructionPtr++
-		return b
-	}
 
 	var n node
-	var start string
 	nodes := make(map[string]node)
 	for len(input) > 0 {
 		n, input = parseNode(input)
 		nodes[n.name] = n
-		if start == `` {
-			start = n.name
-		}
 	}
 
-	curr := nodes[start]
+	curr, ok := nodes[`AAA`]
+	if !ok {
+		panic(`starting node not found`)
+	}
+
 	steps := 0
-	for {
+	for ; ; steps++ {
 		if curr.name == `ZZZ` {
 			break
 		}
 
-		switch nextInstruction() {
+		var next string
+		i := inst.next()
+		switch i {
 		case 'R':
-			curr = nodes[curr.right]
+			next = curr.right
 		case 'L':
-			curr = nodes[curr.left]
+			next = curr.left
 		}
-		steps++
+
+		curr, ok = nodes[next]
+		if !ok {
+			panic(`no mapped node with name "` + next + `"`)
+		}
+
 		if steps%1e6 == 0 {
 			fmt.Printf("%d steps taken so far\n", steps)
 		}
@@ -77,6 +76,25 @@ func part1(input string) int {
 
 func part2(input string) int {
 	return 0
+}
+
+type instructions struct {
+	stream string
+	ptr    int
+}
+
+func (inst *instructions) next() byte {
+	b := inst.stream[inst.ptr]
+	inst.ptr = (inst.ptr + 1) % len(inst.stream)
+	return b
+}
+
+func parseInstructions(str string) (*instructions, string) {
+	stream, str := parsing.TakeUntilChar(str, '\n')
+	return &instructions{
+		stream: stream,
+		ptr:    0,
+	}, parsing.DiscardLine(str)
 }
 
 type node struct {
