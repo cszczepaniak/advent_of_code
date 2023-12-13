@@ -1,6 +1,8 @@
 package parsing
 
-import "strconv"
+import (
+	"strconv"
+)
 
 func TakeUntil(str string, until func(b byte) bool) (string, string) {
 	for i := 0; i < len(str); i++ {
