@@ -2,6 +2,22 @@ package parsing
 
 import "strconv"
 
+func TakeUntil(str string, until func(b byte) bool) (string, string) {
+	for i := 0; i < len(str); i++ {
+		if until(str[i]) {
+			return str[:i], str[i:]
+		}
+	}
+
+	return ``, str
+}
+
+func TakeUntilChar(str string, until byte) (string, string) {
+	return TakeUntil(str, func(b byte) bool {
+		return b == until
+	})
+}
+
 func DiscardSpaces(str string) string {
 	for len(str) > 0 && str[0] == ' ' {
 		str = str[1:]
