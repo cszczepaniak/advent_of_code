@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"iter"
 	"net/http"
-	"strconv"
 	"strings"
 
 	"github.com/cszczepaniak/go-aoc/aoc"
@@ -84,15 +83,23 @@ func solveBVeryVeryNaive(input string) int {
 	return numZeroes
 }
 
+var signs = [...]int{
+	'L': -1,
+	'R': 1,
+}
+
 func nums(input string) iter.Seq[int] {
 	return func(yield func(int) bool) {
 		for instr := range strings.FieldsSeq(input) {
-			sign := 1
-			if instr[0] == 'L' {
-				sign = -1
+			sign := signs[instr[0]]
+
+			val := 0
+			mul := 1
+			for i := len(instr) - 1; i >= 1; i-- {
+				val += int(instr[i]-'0') * mul
+				mul *= 10
 			}
 
-			val, _ := strconv.Atoi(instr[1:])
 			if !yield(sign * int(val)) {
 				return
 			}
