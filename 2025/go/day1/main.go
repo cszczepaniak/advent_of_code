@@ -37,7 +37,7 @@ L82
 	fmt.Println(solveA(input))
 
 	fmt.Println(solveB(testInput))
-	fmt.Println(solveBVeryVeryNaive(input))
+	fmt.Println(solveB(input))
 }
 
 // 42303 ns
@@ -57,30 +57,24 @@ func solveB(input string) int {
 	accum := 50
 	numZeroes := 0
 	for val := range nums(input) {
-		accum += val
-	}
-	return numZeroes
-}
-
-// 609531 ns
-func solveBVeryVeryNaive(input string) int {
-	accum := 50
-	numZeroes := 0
-	for val := range nums(input) {
-		if val > 0 {
-			for range val {
-				accum++
-				if accum%100 == 0 {
-					numZeroes++
-				}
+		lastAccum := accum
+		hundreds := val / 100
+		if hundreds < 0 {
+			hundreds = -hundreds
+		}
+		numZeroes += hundreds
+		rest := val % 100
+		accum += rest
+		if accum == 0 {
+			numZeroes++
+		} else if accum < 0 {
+			accum += 100
+			if lastAccum != 0 {
+				numZeroes++
 			}
-		} else {
-			for range -val {
-				accum--
-				if accum%100 == 0 {
-					numZeroes++
-				}
-			}
+		} else if accum >= 100 {
+			accum -= 100
+			numZeroes++
 		}
 	}
 	return numZeroes

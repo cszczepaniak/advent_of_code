@@ -25,7 +25,7 @@ func BenchmarkSolutions(b *testing.B) {
 	})
 	b.Run(`part b`, func(b *testing.B) {
 		for b.Loop() {
-			solveBVeryVeryNaive(input)
+			solveB(input)
 		}
 	})
 }
