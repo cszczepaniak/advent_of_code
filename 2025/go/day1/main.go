@@ -21,9 +21,7 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Println(solveA(input))
-
-	fmt.Println(solveB(`L68
+	testInput := `L68
 L30
 R48
 L5
@@ -33,7 +31,12 @@ L1
 L99
 R14
 L82
-`))
+`
+
+	fmt.Println(solveA(testInput))
+	fmt.Println(solveA(input))
+
+	fmt.Println(solveB(testInput))
 	fmt.Println(solveBVeryVeryNaive(input))
 }
 
