@@ -7,5 +7,5 @@ import (
 )
 
 func BenchmarkSolutions(b *testing.B) {
-	aoc.BenchmarkSolutions(b, 2025, 1, solveA, solveB)
+	aoc.BenchmarkSolutions(b, 2025, 2, partA, partB)
 }
