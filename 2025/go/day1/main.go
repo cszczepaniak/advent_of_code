@@ -1,43 +1,17 @@
 package main
 
 import (
-	"context"
-	"fmt"
 	"iter"
-	"net/http"
 	"strings"
 
 	"github.com/cszczepaniak/go-aoc/aoc"
 )
 
 func main() {
-	ctx := context.Background()
-	input, err := aoc.GetInputString(
-		ctx,
-		http.DefaultClient,
-		aoc.NewRequest(2025, 1).WithSessionKeyFromEnv("AOC_SESSION").BuildGetInputRequest(),
-	)
+	err := aoc.Main(2025, 1, solveA, solveB, aoc.WithDefaultHTTPClient())
 	if err != nil {
 		panic(err)
 	}
-
-	testInput := `L68
-L30
-R48
-L5
-R60
-L55
-L1
-L99
-R14
-L82
-`
-
-	fmt.Println(solveA(testInput))
-	fmt.Println(solveA(input))
-
-	fmt.Println(solveB(testInput))
-	fmt.Println(solveB(input))
 }
 
 // 42303 ns
