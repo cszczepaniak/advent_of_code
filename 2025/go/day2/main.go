@@ -20,16 +20,33 @@ func main() {
 func partA(input string) int {
 	sum := 0
 	for id := range ids(input) {
-		if hasRepeatsForPartA(strconv.Itoa(id)) {
+		if hasRepeatsForPartA(id) {
 			sum += id
 		}
 	}
 	return sum
 }
 
-func hasRepeatsForPartA(s string) bool {
-	mid := len(s) / 2
-	return s[:mid] == s[mid:]
+func hasRepeatsForPartA(i int) bool {
+	// In order to split the number of digits in half, divide by 10^(numDigits/2)
+	divisorPow := numDigs(i) / 2
+	divisor := 1
+	for range divisorPow {
+		divisor *= 10
+	}
+
+	upper := i / divisor
+	lower := i % divisor
+	return upper == lower
+}
+
+func numDigs(i int) int {
+	n := 0
+	for i > 0 {
+		n++
+		i /= 10
+	}
+	return n
 }
 
 func partB(input string) int {
@@ -90,9 +107,11 @@ func ids(input string) iter.Seq[int] {
 }
 
 func atoi(s string) int {
-	n, err := strconv.Atoi(s)
-	if err != nil {
-		panic(err)
+	mul := 1
+	val := 0
+	for _, dig := range slices.Backward([]byte(s)) {
+		val += mul * int(dig-'0')
+		mul *= 10
 	}
-	return n
+	return val
 }
