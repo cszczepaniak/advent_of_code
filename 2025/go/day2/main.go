@@ -1,10 +1,8 @@
 package main
 
 import (
-	"bytes"
 	"iter"
 	"slices"
-	"strconv"
 	"strings"
 
 	"github.com/cszczepaniak/go-aoc/aoc"
@@ -110,31 +108,35 @@ func numDigs(i int) int {
 func partB(input string) int {
 	sum := 0
 	for id := range ids(input) {
-		strID := []byte(strconv.Itoa(id))
-		if lookForRepeats(strID) {
+		if lookForRepeats(id) {
 			sum += id
 		}
 	}
 	return sum
 }
 
-func lookForRepeats(id []byte) bool {
-	// Very naive and slow!
-	for i := 1; i <= len(id)/2; i++ {
-		var first []byte
+func lookForRepeats(id int) bool {
+	idLen := numDigs(id)
+	for i := 1; i <= idLen/2; i++ {
+		var ints [16]int
 		all := true
-		for ch := range slices.Chunk(id, i) {
-			if len(first) == 0 {
-				first = ch
-				continue
-			}
+		divisor := tenTo(i)
 
-			if !bytes.Equal(first, ch) {
+		idCpy := id
+		idx := 0
+		for idCpy > 0 {
+			ints[idx] = idCpy % divisor
+			if idx > 0 && ints[0] != ints[idx] {
 				all = false
 				break
 			}
+			idx++
+			idCpy /= divisor
 		}
-		if all {
+
+		// The modulo check here rejects numbers like 1001001; without the modulo check and
+		// with i = 3, this number appears to have three repeated digits: 1, 1, 1.
+		if all && idLen%i == 0 {
 			return true
 		}
 	}
