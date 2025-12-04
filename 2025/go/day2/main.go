@@ -64,12 +64,47 @@ func hasRepeatsForPartA(i int) bool {
 }
 
 func numDigs(i int) int {
-	n := 0
-	for i > 0 {
-		n++
-		i /= 10
+	// Instead of using an iterative approach or a log10, doing this if/else chain is a bit
+	// faster.
+	switch {
+	case i < 1e1:
+		return 1
+	case i < 1e2:
+		return 2
+	case i < 1e3:
+		return 3
+	case i < 1e4:
+		return 4
+	case i < 1e5:
+		return 5
+	case i < 1e6:
+		return 6
+	case i < 1e7:
+		return 7
+	case i < 1e8:
+		return 8
+	case i < 1e9:
+		return 9
+	case i < 1e10:
+		return 10
+	case i < 1e11:
+		return 11
+	case i < 1e12:
+		return 12
+	case i < 1e13:
+		return 13
+	case i < 1e14:
+		return 14
+	case i < 1e15:
+		return 15
+	case i < 1e16:
+		return 16
+	case i < 1e17:
+		return 17
+	case i < 1e18:
+		return 18
 	}
-	return n
+	return 19
 }
 
 func partB(input string) int {
