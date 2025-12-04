@@ -27,13 +27,36 @@ func partA(input string) int {
 	return sum
 }
 
+var powersOfTen = [...]int{
+	0:  1e0,
+	1:  1e1,
+	2:  1e2,
+	3:  1e3,
+	4:  1e4,
+	5:  1e5,
+	6:  1e6,
+	7:  1e7,
+	8:  1e8,
+	9:  1e9,
+	10: 1e10,
+	11: 1e11,
+	12: 1e12,
+	13: 1e13,
+	14: 1e14,
+	15: 1e15,
+	16: 1e16,
+	17: 1e17,
+	18: 1e18,
+}
+
+func tenTo(n int) int {
+	return powersOfTen[n]
+}
+
 func hasRepeatsForPartA(i int) bool {
 	// In order to split the number of digits in half, divide by 10^(numDigits/2)
 	divisorPow := numDigs(i) / 2
-	divisor := 1
-	for range divisorPow {
-		divisor *= 10
-	}
+	divisor := tenTo(divisorPow)
 
 	upper := i / divisor
 	lower := i % divisor
