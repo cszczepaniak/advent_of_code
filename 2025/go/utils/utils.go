@@ -1,0 +1,27 @@
+package utils
+
+import (
+	"bytes"
+	"iter"
+	"strings"
+)
+
+func ByteLines(s []byte) iter.Seq[[]byte] {
+	return func(yield func([]byte) bool) {
+		for line := range bytes.Lines(s) {
+			if !yield(bytes.TrimRight(line, "\n")) {
+				return
+			}
+		}
+	}
+}
+
+func StringLines(s string) iter.Seq[string] {
+	return func(yield func(string) bool) {
+		for line := range strings.Lines(s) {
+			if !yield(strings.TrimRight(line, "\n")) {
+				return
+			}
+		}
+	}
+}

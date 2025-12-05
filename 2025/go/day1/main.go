@@ -2,9 +2,10 @@ package main
 
 import (
 	"iter"
-	"strings"
 
 	"github.com/cszczepaniak/go-aoc/aoc"
+
+	"github.com/cszczepaniak/advent_of_code/2025/go/utils"
 )
 
 func main() {
@@ -61,14 +62,13 @@ var signs = [...]int{
 
 func nums(input string) iter.Seq[int] {
 	return func(yield func(int) bool) {
-		for line := range strings.Lines(input) {
+		for line := range utils.StringLines(input) {
 			sign := signs[line[0]]
 
 			val := 0
 			mul := 1
 
-			// Start from the penultimate character because line contains the newline.
-			for i := len(line) - 2; i >= 1; i-- {
+			for i := len(line) - 1; i >= 1; i-- {
 				val += int(line[i]-'0') * mul
 				mul *= 10
 			}

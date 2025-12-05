@@ -1,10 +1,11 @@
 package main
 
 import (
-	"bytes"
 	"iter"
 
 	"github.com/cszczepaniak/go-aoc/aoc"
+
+	"github.com/cszczepaniak/advent_of_code/2025/go/utils"
 )
 
 func main() {
@@ -16,8 +17,8 @@ func main() {
 
 func partA(input []byte) int {
 	grid := make([][]byte, 0)
-	for line := range bytes.Lines(input) {
-		grid = append(grid, bytes.TrimRight(line, "\n"))
+	for line := range utils.ByteLines(input) {
+		grid = append(grid, line)
 	}
 
 	return len(replaceAccessibleRolls(grid, nil))
@@ -25,8 +26,8 @@ func partA(input []byte) int {
 
 func partB(input []byte) int {
 	grid := make([][]byte, 0)
-	for line := range bytes.Lines(input) {
-		grid = append(grid, bytes.TrimRight(line, "\n"))
+	for line := range utils.ByteLines(input) {
+		grid = append(grid, line)
 	}
 
 	total := 0
