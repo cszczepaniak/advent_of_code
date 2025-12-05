@@ -1,9 +1,9 @@
 package main
 
 import (
+	"bytes"
 	"iter"
 	"slices"
-	"strings"
 
 	"github.com/cszczepaniak/go-aoc/aoc"
 )
@@ -15,7 +15,7 @@ func main() {
 	}
 }
 
-func partA(input string) int {
+func partA(input []byte) int {
 	sum := 0
 	for id := range ids(input) {
 		if hasRepeatsForPartA(id) {
@@ -105,7 +105,7 @@ func numDigs(i int) int {
 	return 19
 }
 
-func partB(input string) int {
+func partB(input []byte) int {
 	sum := 0
 	for id := range ids(input) {
 		if lookForRepeats(id) {
@@ -144,13 +144,13 @@ func lookForRepeats(id int) bool {
 	return false
 }
 
-func ids(input string) iter.Seq[int] {
+func ids(input []byte) iter.Seq[int] {
 	return func(yield func(int) bool) {
-		for idRange := range strings.SplitSeq(input, ",") {
-			idRange = strings.TrimRight(idRange, "\n")
-			part1, part2, ok := strings.Cut(idRange, "-")
+		for idRange := range bytes.SplitSeq(input, []byte{','}) {
+			idRange = bytes.TrimRight(idRange, "\n")
+			part1, part2, ok := bytes.Cut(idRange, []byte{'-'})
 			if !ok {
-				panic("invalid ID range: " + idRange)
+				panic("invalid ID range")
 			}
 
 			// Very naive and slow!
@@ -166,10 +166,10 @@ func ids(input string) iter.Seq[int] {
 	}
 }
 
-func atoi(s string) int {
+func atoi(s []byte) int {
 	mul := 1
 	val := 0
-	for _, dig := range slices.Backward([]byte(s)) {
+	for _, dig := range slices.Backward(s) {
 		val += mul * int(dig-'0')
 		mul *= 10
 	}
