@@ -1,15 +1,15 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"iter"
-	"strings"
 
 	"github.com/cszczepaniak/go-aoc/aoc"
 )
 
 func main() {
-	fmt.Println(partB(`..@@.@@@@.
+	fmt.Println(partB([]byte(`..@@.@@@@.
 @@@.@.@.@@
 @@@@@.@.@@
 @.@@@@..@.
@@ -18,7 +18,7 @@ func main() {
 .@.@.@.@@@
 @.@@@.@@@@
 .@@@@@@@@.
-@.@.@@@.@.`))
+@.@.@@@.@.`)))
 	// return
 	err := aoc.Main(2025, 4, partA, partB)
 	if err != nil {
@@ -26,19 +26,19 @@ func main() {
 	}
 }
 
-func partA(input string) int {
+func partA(input []byte) int {
 	grid := make([][]byte, 0) // TODO: prealloc
-	for line := range strings.Lines(input) {
-		grid = append(grid, []byte(strings.TrimRight(line, "\n")))
+	for line := range bytes.Lines(input) {
+		grid = append(grid, bytes.TrimRight(line, "\n"))
 	}
 
 	return len(replaceAccessibleRolls(grid, nil))
 }
 
-func partB(input string) int {
+func partB(input []byte) int {
 	grid := make([][]byte, 0) // TODO: prealloc
-	for line := range strings.Lines(input) {
-		grid = append(grid, []byte(strings.TrimRight(line, "\n")))
+	for line := range bytes.Lines(input) {
+		grid = append(grid, bytes.TrimRight(line, "\n"))
 	}
 
 	total := 0
