@@ -2,24 +2,12 @@ package main
 
 import (
 	"bytes"
-	"fmt"
 	"iter"
 
 	"github.com/cszczepaniak/go-aoc/aoc"
 )
 
 func main() {
-	fmt.Println(partB([]byte(`..@@.@@@@.
-@@@.@.@.@@
-@@@@@.@.@@
-@.@@@@..@.
-@@.@@@@.@@
-.@@@@@@@.@
-.@.@.@.@@@
-@.@@@.@@@@
-.@@@@@@@@.
-@.@.@@@.@.`)))
-	// return
 	err := aoc.Main(2025, 4, partA, partB)
 	if err != nil {
 		panic(err)
