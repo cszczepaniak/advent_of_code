@@ -1,44 +1,39 @@
 package main
 
 import (
+	"bytes"
 	"iter"
-	"strings"
 
 	"github.com/cszczepaniak/go-aoc/aoc"
 )
 
 func main() {
-	// 	fmt.Println(partB(`987654321111111
-	// 811111111111119
-	// 234234234234278
-	// 818181911112111`))
-	// 	return
 	err := aoc.Main(2025, 3, partA, partB)
 	if err != nil {
 		panic(err)
 	}
 }
 
-func partA(input string) int {
+func partA(input []byte) int {
 	sum := 0
-	for line := range strings.Lines(input) {
-		line = strings.TrimRight(line, "\n")
+	for line := range bytes.Lines(input) {
+		line = bytes.TrimRight(line, "\n")
 		sum += findJoltage(line, 2)
 	}
 	return sum
 }
 
-func partB(input string) int {
+func partB(input []byte) int {
 	sum := 0
-	for line := range strings.Lines(input) {
-		line = strings.TrimRight(line, "\n")
+	for line := range bytes.Lines(input) {
+		line = bytes.TrimRight(line, "\n")
 		sum += findJoltage(line, 12)
 	}
 	return sum
 
 }
 
-func findJoltage(s string, digits int) int {
+func findJoltage(s []byte, digits int) int {
 	currIdx := 0
 	joltage := 0
 
@@ -61,7 +56,7 @@ func findJoltage(s string, digits int) int {
 	return joltage
 }
 
-func findGreatestDigit(s string) (int, int) {
+func findGreatestDigit(s []byte) (int, int) {
 	answer := -1
 	idx := -1
 	for i, dig := range digits(s) {
@@ -73,9 +68,9 @@ func findGreatestDigit(s string) (int, int) {
 	return answer, idx
 }
 
-func digits(s string) iter.Seq2[int, int] {
+func digits(s []byte) iter.Seq2[int, int] {
 	return func(yield func(int, int) bool) {
-		for i, b := range []byte(s) {
+		for i, b := range s {
 			if !yield(i, int(b-'0')) {
 				return
 			}
