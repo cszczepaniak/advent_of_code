@@ -30,32 +30,6 @@ func partA(input []byte) int {
 	return sum
 }
 
-var powersOfTen = [...]int{
-	0:  1e0,
-	1:  1e1,
-	2:  1e2,
-	3:  1e3,
-	4:  1e4,
-	5:  1e5,
-	6:  1e6,
-	7:  1e7,
-	8:  1e8,
-	9:  1e9,
-	10: 1e10,
-	11: 1e11,
-	12: 1e12,
-	13: 1e13,
-	14: 1e14,
-	15: 1e15,
-	16: 1e16,
-	17: 1e17,
-	18: 1e18,
-}
-
-func tenTo(n int) int {
-	return powersOfTen[n]
-}
-
 func hasRepeatsForPartA(i int) (bool, int) {
 	// In order to split the number of digits in half, divide by 10^(numDigits/2)
 	divisorPow := numDigs(i) / 2
@@ -64,50 +38,6 @@ func hasRepeatsForPartA(i int) (bool, int) {
 	upper := i / divisor
 	lower := i % divisor
 	return upper == lower, divisor
-}
-
-func numDigs(i int) int {
-	// Instead of using an iterative approach or a log10, doing this if/else chain is a bit
-	// faster.
-	switch {
-	case i < 1e1:
-		return 1
-	case i < 1e2:
-		return 2
-	case i < 1e3:
-		return 3
-	case i < 1e4:
-		return 4
-	case i < 1e5:
-		return 5
-	case i < 1e6:
-		return 6
-	case i < 1e7:
-		return 7
-	case i < 1e8:
-		return 8
-	case i < 1e9:
-		return 9
-	case i < 1e10:
-		return 10
-	case i < 1e11:
-		return 11
-	case i < 1e12:
-		return 12
-	case i < 1e13:
-		return 13
-	case i < 1e14:
-		return 14
-	case i < 1e15:
-		return 15
-	case i < 1e16:
-		return 16
-	case i < 1e17:
-		return 17
-	case i < 1e18:
-		return 18
-	}
-	return 19
 }
 
 func partB(input []byte) int {
@@ -189,4 +119,74 @@ func atoi(s []byte) int {
 		mul *= 10
 	}
 	return val
+}
+
+var powersOfTen = [...]int{
+	0:  1e0,
+	1:  1e1,
+	2:  1e2,
+	3:  1e3,
+	4:  1e4,
+	5:  1e5,
+	6:  1e6,
+	7:  1e7,
+	8:  1e8,
+	9:  1e9,
+	10: 1e10,
+	11: 1e11,
+	12: 1e12,
+	13: 1e13,
+	14: 1e14,
+	15: 1e15,
+	16: 1e16,
+	17: 1e17,
+	18: 1e18,
+}
+
+func tenTo(n int) int {
+	return powersOfTen[n]
+}
+
+func numDigs(i int) int {
+	// Instead of using an iterative approach or a log10, doing this if/else chain is a bit
+	// faster.
+	switch {
+	case i < 1e1:
+		return 1
+	case i < 1e2:
+		return 2
+	case i < 1e3:
+		return 3
+	case i < 1e4:
+		return 4
+	case i < 1e5:
+		return 5
+	case i < 1e6:
+		return 6
+	case i < 1e7:
+		return 7
+	case i < 1e8:
+		return 8
+	case i < 1e9:
+		return 9
+	case i < 1e10:
+		return 10
+	case i < 1e11:
+		return 11
+	case i < 1e12:
+		return 12
+	case i < 1e13:
+		return 13
+	case i < 1e14:
+		return 14
+	case i < 1e15:
+		return 15
+	case i < 1e16:
+		return 16
+	case i < 1e17:
+		return 17
+	case i < 1e18:
+		return 18
+	}
+	return 19
 }
