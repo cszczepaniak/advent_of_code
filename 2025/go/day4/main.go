@@ -27,7 +27,7 @@ func main() {
 }
 
 func partA(input []byte) int {
-	grid := make([][]byte, 0) // TODO: prealloc
+	grid := make([][]byte, 0)
 	for line := range bytes.Lines(input) {
 		grid = append(grid, bytes.TrimRight(line, "\n"))
 	}
@@ -36,7 +36,7 @@ func partA(input []byte) int {
 }
 
 func partB(input []byte) int {
-	grid := make([][]byte, 0) // TODO: prealloc
+	grid := make([][]byte, 0)
 	for line := range bytes.Lines(input) {
 		grid = append(grid, bytes.TrimRight(line, "\n"))
 	}
