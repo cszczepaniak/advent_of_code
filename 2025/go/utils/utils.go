@@ -3,6 +3,7 @@ package utils
 import (
 	"bytes"
 	"iter"
+	"slices"
 	"strings"
 )
 
@@ -24,4 +25,18 @@ func StringLines(s string) iter.Seq[string] {
 			}
 		}
 	}
+}
+
+func SimplerAtoi(s []byte) int {
+	mul := 1
+	val := 0
+	for _, dig := range slices.Backward(s) {
+		val += mul * AsciiToDigit(dig)
+		mul *= 10
+	}
+	return val
+}
+
+func AsciiToDigit(c byte) int {
+	return int(c - '0')
 }

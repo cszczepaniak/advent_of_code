@@ -65,15 +65,8 @@ func nums(input string) iter.Seq[int] {
 		for line := range utils.StringLines(input) {
 			sign := signs[line[0]]
 
-			val := 0
-			mul := 1
-
-			for i := len(line) - 1; i >= 1; i-- {
-				val += int(line[i]-'0') * mul
-				mul *= 10
-			}
-
-			if !yield(sign * int(val)) {
+			val := utils.SimplerAtoi([]byte(line[1:]))
+			if !yield(sign * val) {
 				return
 			}
 		}

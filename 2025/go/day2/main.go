@@ -3,9 +3,10 @@ package main
 import (
 	"bytes"
 	"iter"
-	"slices"
 
 	"github.com/cszczepaniak/go-aoc/aoc"
+
+	"github.com/cszczepaniak/advent_of_code/2025/go/utils"
 )
 
 func main() {
@@ -89,8 +90,8 @@ func idRange(input []byte) iter.Seq2[int, int] {
 			}
 
 			// Very naive and slow!
-			start := atoi(part1)
-			end := atoi(part2)
+			start := utils.SimplerAtoi(part1)
+			end := utils.SimplerAtoi(part2)
 
 			if !yield(start, end) {
 				return
@@ -109,16 +110,6 @@ func ids(input []byte) iter.Seq[int] {
 			}
 		}
 	}
-}
-
-func atoi(s []byte) int {
-	mul := 1
-	val := 0
-	for _, dig := range slices.Backward(s) {
-		val += mul * int(dig-'0')
-		mul *= 10
-	}
-	return val
 }
 
 var powersOfTen = [...]int{

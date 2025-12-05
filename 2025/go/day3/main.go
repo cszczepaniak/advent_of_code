@@ -5,6 +5,8 @@ import (
 	"iter"
 
 	"github.com/cszczepaniak/go-aoc/aoc"
+
+	"github.com/cszczepaniak/advent_of_code/2025/go/utils"
 )
 
 func main() {
@@ -71,7 +73,7 @@ func findGreatestDigit(s []byte) (int, int) {
 func digits(s []byte) iter.Seq2[int, int] {
 	return func(yield func(int, int) bool) {
 		for i, b := range s {
-			if !yield(i, int(b-'0')) {
+			if !yield(i, utils.AsciiToDigit(b)) {
 				return
 			}
 		}
