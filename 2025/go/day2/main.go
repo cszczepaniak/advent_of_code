@@ -17,9 +17,14 @@ func main() {
 
 func partA(input []byte) int {
 	sum := 0
-	for id := range ids(input) {
-		if hasRepeatsForPartA(id) {
-			sum += id
+	for start, end := range idRange(input) {
+		for id := start; id <= end; {
+			if has, div := hasRepeatsForPartA(id); has {
+				sum += id
+				id += div
+			} else {
+				id += 1
+			}
 		}
 	}
 	return sum
@@ -51,14 +56,14 @@ func tenTo(n int) int {
 	return powersOfTen[n]
 }
 
-func hasRepeatsForPartA(i int) bool {
+func hasRepeatsForPartA(i int) (bool, int) {
 	// In order to split the number of digits in half, divide by 10^(numDigits/2)
 	divisorPow := numDigs(i) / 2
 	divisor := tenTo(divisorPow)
 
 	upper := i / divisor
 	lower := i % divisor
-	return upper == lower
+	return upper == lower, divisor
 }
 
 func numDigs(i int) int {
@@ -144,8 +149,8 @@ func lookForRepeats(id int) bool {
 	return false
 }
 
-func ids(input []byte) iter.Seq[int] {
-	return func(yield func(int) bool) {
+func idRange(input []byte) iter.Seq2[int, int] {
+	return func(yield func(int, int) bool) {
 		for idRange := range bytes.SplitSeq(input, []byte{','}) {
 			idRange = bytes.TrimRight(idRange, "\n")
 			part1, part2, ok := bytes.Cut(idRange, []byte{'-'})
@@ -157,6 +162,16 @@ func ids(input []byte) iter.Seq[int] {
 			start := atoi(part1)
 			end := atoi(part2)
 
+			if !yield(start, end) {
+				return
+			}
+		}
+	}
+}
+
+func ids(input []byte) iter.Seq[int] {
+	return func(yield func(int) bool) {
+		for start, end := range idRange(input) {
 			for i := start; i <= end; i++ {
 				if !yield(i) {
 					return
