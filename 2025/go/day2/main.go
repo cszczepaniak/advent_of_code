@@ -18,27 +18,54 @@ func main() {
 
 func partA(input []byte) int {
 	sum := 0
-	for start, end := range idRange(input) {
-		for id := start; id <= end; {
-			if has, div := hasRepeatsForPartA(id); has {
-				sum += id
-				id += div
-			} else {
-				id += 1
+	for rng := range bytes.SplitSeq(input, []byte{','}) {
+		rng = bytes.TrimRight(rng, "\n")
+		lo, hi, _ := bytes.Cut(rng, []byte{'-'})
+		hiN := utils.SimplerAtoi(hi)
+		start, startUpper := findFirstRepeatSequence(lo)
+		if start > hiN {
+			continue
+		}
+
+		n := startUpper
+		for {
+			num := repeat(n)
+			if num > hiN {
+				break
 			}
+			sum += num
+			n++
 		}
 	}
 	return sum
 }
 
-func hasRepeatsForPartA(i int) (bool, int) {
-	// In order to split the number of digits in half, divide by 10^(numDigits/2)
-	divisorPow := numDigs(i) / 2
-	divisor := tenTo(divisorPow)
+func repeat(n int) int {
+	digs := numDigs(n)
+	return n*tenTo(digs) + n
+}
 
-	upper := i / divisor
-	lower := i % divisor
-	return upper == lower, divisor
+func findFirstRepeatSequence(bs []byte) (int, int) {
+	if len(bs)%2 == 1 {
+		// Odd number of digits: the next chance of a repeat is a sequence of e.g. 100100 if
+		// the number was 68928
+		digs := len(bs) + 1
+		half := tenTo(digs/2 - 1)
+		return half*tenTo(digs/2) + half, half
+	} else {
+		// Even number of digits: the next chance of a repeat is either the upper half
+		// repeated or the upper half + 1 repeated.
+		//   12341111 -> 12341234
+		//   12342111 -> 12351235
+		digs := len(bs)
+		hi := bs[:len(bs)/2]
+		lo := bs[len(bs)/2:]
+		hiN := utils.SimplerAtoi(hi)
+		if hiN < utils.SimplerAtoi(lo) {
+			hiN++
+		}
+		return hiN*tenTo(digs/2) + hiN, hiN
+	}
 }
 
 func partB(input []byte) int {
