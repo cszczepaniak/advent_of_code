@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"fmt"
 	"slices"
 
 	"github.com/cszczepaniak/go-aoc/aoc"
@@ -28,9 +27,6 @@ func partA(input []byte) int {
 		repDigs := max(1, len(lo)/2)
 		if len(lo)%2 == 1 && len(lo) > 1 {
 			repDigs++
-		}
-		if loN == 3 {
-			fmt.Println(repDigs)
 		}
 
 		start := nextID(loN, repDigs)
