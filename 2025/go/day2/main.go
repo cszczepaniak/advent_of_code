@@ -2,7 +2,7 @@ package main
 
 import (
 	"bytes"
-	"iter"
+	"slices"
 
 	"github.com/cszczepaniak/go-aoc/aoc"
 
@@ -70,72 +70,98 @@ func findFirstRepeatSequence(bs []byte) (int, int) {
 
 func partB(input []byte) int {
 	sum := 0
-	for id := range ids(input) {
-		if lookForRepeats(id) {
-			sum += id
+
+	dedup := make(map[int]struct{})
+	for rng := range bytes.SplitSeq(input, []byte{','}) {
+		rng = bytes.TrimRight(rng, "\n")
+		lo, hi, _ := bytes.Cut(rng, []byte{'-'})
+		loN := utils.SimplerAtoi(lo)
+		hiN := utils.SimplerAtoi(hi)
+
+		clear(dedup)
+		for i := 1; i <= len(hi)/2; i++ {
+			for id := nextID(loN, i); id <= hiN; id = nextID(id+1, i) {
+				_, ok := dedup[id]
+				if ok {
+					continue
+				}
+				dedup[id] = struct{}{}
+				sum += id
+			}
 		}
 	}
+
 	return sum
 }
 
-func lookForRepeats(id int) bool {
-	idLen := numDigs(id)
-	for i := 1; i <= idLen/2; i++ {
-		var ints [16]int
-		all := true
-		divisor := tenTo(i)
+func nextID(inputID int, seqLen int) int {
+	numInputDigits := numDigs(inputID)
+	nDigitsInNextID := numInputDigits
 
-		idCpy := id
-		idx := 0
-		for idCpy > 0 {
-			ints[idx] = idCpy % divisor
-			if idx > 0 && ints[0] != ints[idx] {
-				all = false
+	for nDigitsInNextID%seqLen != 0 {
+		nDigitsInNextID++
+	}
+
+	// SPECIAL CASE: if the input ID is a single digit and the seqLen is 1, the next ID has to
+	// be two digits even though numInputDigits%seqLen == 0
+	if numInputDigits == 1 && seqLen == 1 {
+		nDigitsInNextID++
+	}
+
+	if nDigitsInNextID > numInputDigits {
+		// Bump up number of digits: the next chance of a repeat is a sequence of e.g. 100100 if
+		// the number was 68928
+		rep := tenTo(seqLen - 1)
+		mul := tenTo(seqLen)
+		res := rep
+		for {
+			res *= mul
+			res += rep
+			if numDigs(res) >= nDigitsInNextID {
 				break
 			}
-			idx++
-			idCpy /= divisor
+		}
+		return res
+	} else {
+		// Search for the next chance of a repeat; 828284 -> 848484, e.g.
+
+		// Extract top N digits
+		top := inputID
+		div := tenTo(seqLen)
+		for numDigs(top) != seqLen {
+			top /= div
 		}
 
-		// The modulo check here rejects numbers like 1001001; without the modulo check and
-		// with i = 3, this number appears to have three repeated digits: 1, 1, 1.
-		if all && idLen%i == 0 {
-			return true
+		// Collect groups of digits
+		// TODO: no allocs
+		var groups []int
+		for inputID > 0 {
+			groups = append(groups, inputID%div)
+			inputID /= div
 		}
-	}
 
-	return false
-}
-
-func idRange(input []byte) iter.Seq2[int, int] {
-	return func(yield func(int, int) bool) {
-		for idRange := range bytes.SplitSeq(input, []byte{','}) {
-			idRange = bytes.TrimRight(idRange, "\n")
-			part1, part2, ok := bytes.Cut(idRange, []byte{'-'})
-			if !ok {
-				panic("invalid ID range")
-			}
-
-			// Very naive and slow!
-			start := utils.SimplerAtoi(part1)
-			end := utils.SimplerAtoi(part2)
-
-			if !yield(start, end) {
-				return
-			}
-		}
-	}
-}
-
-func ids(input []byte) iter.Seq[int] {
-	return func(yield func(int) bool) {
-		for start, end := range idRange(input) {
-			for i := start; i <= end; i++ {
-				if !yield(i) {
-					return
-				}
+		// Start at the group nearest the top; if one is strictly less than the top, we can
+		// repeat the top digits; if one is strictly more than the top, we need to use the
+		// top + 1
+		for _, group := range slices.Backward(groups) {
+			if group < top {
+				break
+			} else if group > top {
+				top++
+				break
 			}
 		}
+
+		mul := tenTo(seqLen)
+		res := top
+		for {
+			res *= mul
+			res += top
+			if numDigs(res) >= nDigitsInNextID {
+				break
+			}
+		}
+		return res
 	}
 }
 
