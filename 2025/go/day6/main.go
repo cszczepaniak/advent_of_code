@@ -20,14 +20,7 @@ func partA(input []byte) int {
 	idx := bytes.LastIndexByte(input, '\n')
 	nums := input[:idx]
 
-	opsLine := input[idx+1:]
-	var ops [1024]byte
-	i := 0
-	for _, b := range opsLine {
-		if b != ' ' {
-			ops[i] = b
-		}
-	}
+	ops := parseOps(input[idx+1:])
 
 	results := make([]int, len(ops))
 	sum := 0
@@ -64,31 +57,55 @@ func partA(input []byte) int {
 	return sum
 }
 
+func parseOps(l []byte) [1024]byte {
+	var ops [1024]byte
+	i := 0
+	for _, b := range l {
+		switch b {
+		case '+', '*':
+			ops[i] = b
+			i++
+		}
+	}
+	return ops
+}
+
 func partB(input []byte) int {
 	input = bytes.TrimRight(input, "\n")
 	idx := bytes.LastIndexByte(input, '\n')
 
-	opsLine := input[idx+1:]
-	ops := bytes.Fields(opsLine)
+	ops := parseOps(input[idx+1:])
 
 	lines := bytes.Split(input[:idx], []byte{'\n'})
 
-	currRes := 0
 	col := 0
 	sum := 0
+
+	var currRes int
+	resetRes := func() {
+		switch ops[col] {
+		case '+':
+			currRes = 0
+		case '*':
+			currRes = 1
+		}
+	}
+	resetRes()
+
 	for len(lines[0]) > 0 {
 		num, ok := numFromCol(lines)
 		if !ok {
 			sum += currRes
-			currRes = 0
 			col++
+			resetRes()
+			continue
 		}
 
-		switch ops[col][0] {
+		switch ops[col] {
 		case '+':
 			currRes += num
 		case '*':
-			currRes = max(1, currRes) * num
+			currRes *= num
 		}
 	}
 
