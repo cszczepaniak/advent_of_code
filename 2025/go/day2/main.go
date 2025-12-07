@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"fmt"
 	"slices"
 
 	"github.com/cszczepaniak/go-aoc/aoc"
@@ -21,8 +22,19 @@ func partA(input []byte) int {
 	for rng := range bytes.SplitSeq(input, []byte{','}) {
 		rng = bytes.TrimRight(rng, "\n")
 		lo, hi, _ := bytes.Cut(rng, []byte{'-'})
+		loN := utils.SimplerAtoi(lo)
 		hiN := utils.SimplerAtoi(hi)
-		start, startUpper := findFirstRepeatSequence(lo)
+
+		repDigs := max(1, len(lo)/2)
+		if len(lo)%2 == 1 && len(lo) > 1 {
+			repDigs++
+		}
+		if loN == 3 {
+			fmt.Println(repDigs)
+		}
+
+		start := nextID(loN, repDigs)
+		startUpper := start / tenTo(repDigs)
 		if start > hiN {
 			continue
 		}
@@ -43,29 +55,6 @@ func partA(input []byte) int {
 func repeat(n int) int {
 	digs := numDigs(n)
 	return n*tenTo(digs) + n
-}
-
-func findFirstRepeatSequence(bs []byte) (int, int) {
-	if len(bs)%2 == 1 {
-		// Odd number of digits: the next chance of a repeat is a sequence of e.g. 100100 if
-		// the number was 68928
-		digs := len(bs) + 1
-		half := tenTo(digs/2 - 1)
-		return half*tenTo(digs/2) + half, half
-	} else {
-		// Even number of digits: the next chance of a repeat is either the upper half
-		// repeated or the upper half + 1 repeated.
-		//   12341111 -> 12341234
-		//   12342111 -> 12351235
-		digs := len(bs)
-		hi := bs[:len(bs)/2]
-		lo := bs[len(bs)/2:]
-		hiN := utils.SimplerAtoi(hi)
-		if hiN < utils.SimplerAtoi(lo) {
-			hiN++
-		}
-		return hiN*tenTo(digs/2) + hiN, hiN
-	}
 }
 
 func partB(input []byte) int {
